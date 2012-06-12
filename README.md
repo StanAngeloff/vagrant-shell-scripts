@@ -255,3 +255,7 @@ mysql-remote-access-allow
 # Restart MySQL service for changes to take effect.
 mysql-restart
 ```
+
+### Copyright
+
+> Copyright (c) 2012 Stan Angeloff. See [LICENSE.md](https://github.com/StanAngeloff/vagrant-shell-scripts/blob/master/LICENSE.md) for details.
