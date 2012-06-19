@@ -73,6 +73,44 @@ apt-packages-install() {
 
 # }}}
 
+# {{{ Default Commands
+
+# Update the Ruby binary link to point to a specific version.
+# TODO: ($bin_path = '/usr/bin/', $man_path = '/usr/share/man/man1/', $priority = 500)
+alternatives-ruby-install() {
+  local bin_path
+  local man_path
+  bin_path="${2:-/usr/bin/}"
+  man_path="${3:-/usr/share/man/man1/}"
+  $SUDO update-alternatives                                                         \
+    --install "${bin_path}ruby"      ruby      "${bin_path}ruby$1"      "${4:-500}" \
+    --slave   "${man_path}ruby.1.gz" ruby.1.gz "${man_path}ruby$1.1.gz"             \
+    --slave   "${bin_path}ri"        ri        "${bin_path}ri$1"                    \
+    --slave   "${bin_path}irb"       irb       "${bin_path}irb$1"                   \
+    --slave   "${bin_path}rdoc"      rdoc      "${bin_path}rdoc$1"
+  $SUDO update-alternatives --verbose                                               \
+    --set                            ruby      "${bin_path}ruby$1"
+}
+
+# Create symbolic links to RubyGems binaries.
+alternatives-ruby-gems() {
+  local ruby_binary
+  local ruby_version
+  local binary_path
+  ruby_binary=$( $SUDO update-alternatives --query 'ruby' | grep 'Value:' | cut -d' ' -f2- )
+  ruby_version="${ruby_binary#*ruby}"
+  if grep -v '^[0-9.]*$' <<< "$ruby_version"; then
+    echo "Could not determine version of RubyGems."
+  fi
+  for binary_name in "$@"; do
+    binary_path="/var/lib/gems/$ruby_version/bin/$binary_name"
+    $SUDO update-alternatives --install "$( dirname "$ruby_binary" )/$binary_name" "$binary_name" "$binary_path" 500
+    $SUDO update-alternatives --verbose --set                                      "$binary_name" "$binary_path"
+  done
+}
+
+# }}}
+
 # {{{ Apache
 
 # Enable a list of Apache modules. This requires a server restart.

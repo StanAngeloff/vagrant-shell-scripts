@@ -127,6 +127,41 @@ Functions
       php5-cgi
     ```
 
+### Default Commands
+
+- `alternatives-ruby-install(version[, bin_path = '/usr/bin/'[, man_path = '/usr/share/man/man1/'[, priority = 500]]])`
+
+    Update the Ruby binary link to point to a specific version.
+
+    Example:
+
+    ```bash
+    apt-packages-install \
+      ruby1.9.1          \
+      ruby1.9.1-dev      \
+      rubygems1.9.1
+    alternatives-ruby-install 1.9.1
+    ```
+
+- `alternatives-ruby-gems()`
+
+    Create symbolic links to RubyGems binaries.
+
+    By default, RubyGems on Ubuntu does not create binaries on `$PATH`.
+    Using this function would create a symbolic link in the directory of your `ruby` binary which is assumed to be on `$PATH`.
+
+    Example (install stable versions of Sass and link it as `/usr/bin/sass`):
+
+    ```bash
+    apt-packages-install \
+      ruby1.9.1          \
+      ruby1.9.1-dev      \
+      rubygems1.9.1
+    alternatives-ruby-install 1.9.1
+    github-gems-install 'nex3/sass'
+    alternatives-ruby-gems 'sass'
+    ```
+
 ### Apache
 
 - `apache-modules-enable(module[, module[, ...]])`
