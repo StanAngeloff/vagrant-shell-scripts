@@ -249,6 +249,23 @@ Functions
 
     Restart the MySQL server and reload with new configuration.
 
+### RubyGems
+
+- `ruby-gems-install(package[, package[, ...]])`
+
+    Perform an unattended installation of package(s).
+
+    Example:
+
+    ```bash
+    apt-packages-install \
+      ruby1.9.1          \
+      ruby1.9.1-dev      \
+      rubygems1.9.1
+    alternatives-ruby-install 1.9.1
+    ruby-gems-install pkg-config
+    ```
+
 Goal
 ----
 

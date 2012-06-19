@@ -269,3 +269,12 @@ mysql-restart() {
 }
 
 # }}}
+
+# {{{ RubyGems
+
+# Perform an unattended installation of package(s).
+ruby-gems-install() {
+  $SUDO gem install --no-ri --no-rdoc $*
+}
+
+# }}}
