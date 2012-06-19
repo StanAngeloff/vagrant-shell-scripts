@@ -42,6 +42,18 @@ apt-mirror-pick() {
     '/etc/apt/sources.list'
 }
 
+# Add a Launchpad PPA as a software source.
+apt-packages-ppa() {
+  local ppa_name
+  ppa_name=$( echo "$1" | sed -e 's#[^[:alnum:]]\+#-#g' )
+  ( cat <<-EOD
+deb     http://ppa.launchpad.net/$1/ubuntu lucid main
+deb-src http://ppa.launchpad.net/$1/ubuntu lucid main
+EOD
+  ) | $SUDO tee "/etc/apt/sources.list.d/$ppa_name.list" > /dev/null
+  $SUDO apt-key adv --keyserver "${3:-keyserver.ubuntu.com}" --recv-keys "$2"
+}
+
 # Update `aptitude` packages without any prompts.
 apt-packages-update() {
   $SUDO apt-get -q update

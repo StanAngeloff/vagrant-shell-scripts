@@ -88,6 +88,25 @@ Functions
     apt-mirror-pick 'bg'
     ```
 
+- `apt-packages-ppa(repository[, key[, server = 'keyserver.ubuntu.com']])`
+
+    Add a Launchpad PPA as a software source.
+
+    The `repository` is the Launchpad user and project name, e.g., `chris-lea/node.js`.
+
+    `key` and `server` are the signing key and server.
+    You need to add the key to your system so Ubuntu can verify the packages from the PPA.
+
+    Example (install Node.js from unofficial PPA):
+
+    ```bash
+    apt-packages-ppa 'chris-lea/node.js' 'C7917B12'
+    apt-packages-update
+    apt-packages-install \
+      nodejs             \
+      npm
+    ```
+
 - `apt-packages-update`
 
     Update `aptitude` packages without any prompts.
