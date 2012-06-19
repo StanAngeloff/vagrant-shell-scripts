@@ -288,3 +288,30 @@ npm-packages-install() {
 }
 
 # }}}
+
+# {{{ GitHub
+
+# Download and install RubyGems from GitHub.
+github-gems-install() {
+  local clone_path
+  local configuration
+  which 'git' >/dev/null || apt-packages-install 'git-core'
+  which 'gem' >/dev/null || {
+    echo 'Please install RubyGems to continue.' 1>&2
+    exit 1
+  }
+  for repository in "$@"; do
+    configuration=(${repository//@/"${IFS}"})
+    clone_path="$( mktemp -d -t 'github-'$( echo "${configuration[0]}" | sed -e 's#[^[:alnum:]]\+#-#g' )'-XXXXXXXX' )"
+    git clone "git://github.com/${configuration[0]}" "$clone_path"
+    (                                                   \
+      cd "$clone_path"                               && \
+      git checkout "${configuration[1]:-master}"     && \
+      gem build *.gemspec                            && \
+      ruby-gems-install *.gem                           \
+    )
+    rm -Rf "$clone_path"
+  done
+}
+
+# }}}

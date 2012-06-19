@@ -283,6 +283,29 @@ Functions
     npm-packages-install uglify-js
     ```
 
+### GitHub
+
+- `github-gems-install(repository[, repository[, ...]])`
+
+    Download and install RubyGems from GitHub.
+
+    The format of each `repository` is `user/project[@branch]` where `branch` can be omitted and defaults to `master`.
+
+    Example (install unstable versions of Sass and Compass):
+
+    ```bash
+    apt-packages-install \
+      ruby1.9.1          \
+      ruby1.9.1-dev      \
+      rubygems1.9.1
+    alternatives-ruby-install 1.9.1
+    github-gems-install              \
+      'ttilley/fssm'                 \
+      'nex3/sass@master'             \
+      'wvanbergen/chunky_png'        \
+      'chriseppstein/compass@master'
+    ```
+
 Goal
 ----
 
