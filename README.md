@@ -266,6 +266,23 @@ Functions
     ruby-gems-install pkg-config
     ```
 
+### NPM (Node Package Manager)
+
+- `npm-packages-install(package[, package[, ...]])`
+
+    Perform an unattended **global** installation of package(s).
+
+    Example (install UglifyJS):
+
+    ```bash
+    apt-packages-ppa 'chris-lea/node.js' 'C7917B12'
+    apt-packages-update
+    apt-packages-install \
+      nodejs             \
+      npm
+    npm-packages-install uglify-js
+    ```
+
 Goal
 ----
 

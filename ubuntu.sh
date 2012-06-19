@@ -278,3 +278,13 @@ ruby-gems-install() {
 }
 
 # }}}
+
+# {{{ NPM (Node Package Manager)
+
+# Perform an unattended **global** installation of package(s).
+npm-packages-install() {
+  $SUDO npm config set yes true
+  $SUDO npm install -g $*
+}
+
+# }}}
