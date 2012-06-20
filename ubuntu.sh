@@ -171,6 +171,9 @@ apache-sites-create() {
   SuexecUserGroup ${apache_site_user} ${apache_site_group}
   ScriptAlias ${cgi_apache_path} ${cgi_system_path}
 
+  # Do not use kernel sendfile to deliver files to the client.
+  EnableSendfile Off
+
   <Directory ${apache_site_path}>
     Options All
     AllowOverride All
