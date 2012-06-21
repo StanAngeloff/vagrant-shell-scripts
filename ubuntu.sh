@@ -15,17 +15,27 @@ script-argument-create() {
   echo "$1"
 }
 
+# Log an operation
+log-operation() {
+  local function_name
+  function_name="$1"
+  shift
+  [ -z "$QUIET" ] && echo "$function_name(""$@"')...'
+}
+
 # }}}
 
 # {{{ Nameservers
 
 # Drop all local 10.0.x.x nameservers in 'resolv.conf'.
 nameservers-local-purge() {
+  log-operation "$FUNCNAME" "$@"
   $SUDO sed -e 's#nameserver\s*10\.0\..*$##g' -i '/etc/resolv.conf'
 }
 
 # Set up an IP as a DNS name server if not already present in 'resolv.conf'.
 nameservers-append() {
+  log-operation "$FUNCNAME" "$@"
   grep "$1" '/etc/resolv.conf' > /dev/null || \
     ( echo "nameserver $1" | $SUDO tee -a '/etc/resolv.conf' > /dev/null )
 }
@@ -36,6 +46,7 @@ nameservers-append() {
 
 # Set up a specific two-letter country code as the preferred `aptitude` mirror.
 apt-mirror-pick() {
+  log-operation "$FUNCNAME" "$@"
   $SUDO sed -i \
     -e "s#\w\+\.archive\.ubuntu\.com#$1.archive.ubuntu.com#g" \
     -e "s#security\.ubuntu\.com#$1.archive.ubuntu.com#g" \
@@ -44,6 +55,7 @@ apt-mirror-pick() {
 
 # Add a Launchpad PPA as a software source.
 apt-packages-ppa() {
+  log-operation "$FUNCNAME" "$@"
   local ppa_name
   ppa_name=$( echo "$1" | sed -e 's#[^[:alnum:]]\+#-#g' )
   ( cat <<-EOD
@@ -51,24 +63,31 @@ deb     http://ppa.launchpad.net/$1/ubuntu lucid main
 deb-src http://ppa.launchpad.net/$1/ubuntu lucid main
 EOD
   ) | $SUDO tee "/etc/apt/sources.list.d/$ppa_name.list" > /dev/null
-  $SUDO apt-key adv --keyserver "${3:-keyserver.ubuntu.com}" --recv-keys "$2"
+  $SUDO apt-key adv -q --keyserver "${3:-keyserver.ubuntu.com}" --recv-keys "$2" 1>/dev/null
 }
 
-# Update `aptitude` packages without any prompts.
-apt-packages-update() {
-  $SUDO apt-get -q update
-}
-
-# Perform an unattended installation of package(s).
-apt-packages-install() {
+# Perform a non-interactive `apt-get` command.
+apt-non-interactive() {
   $SUDO                                    \
     DEBIAN_FRONTEND=noninteractive         \
     apt-get                                \
       -o Dpkg::Options::='--force-confdef' \
       -o Dpkg::Options::='--force-confold' \
       -f -y -q                             \
-    install                                \
-      $*
+      --no-install-recommends              \
+      "$@"
+}
+
+# Update `aptitude` packages without any prompts.
+apt-packages-update() {
+  log-operation "$FUNCNAME" "$@"
+  apt-non-interactive -q update
+}
+
+# Perform an unattended installation of package(s).
+apt-packages-install() {
+  log-operation "$FUNCNAME" "$@"
+  apt-non-interactive -q install "$@"
 }
 
 # }}}
@@ -77,6 +96,7 @@ apt-packages-install() {
 
 # Update the Ruby binary link to point to a specific version.
 alternatives-ruby-install() {
+  log-operation "$FUNCNAME" "$@"
   local bin_path
   local man_path
   bin_path="${2:-/usr/bin/}"
@@ -93,6 +113,7 @@ alternatives-ruby-install() {
 
 # Create symbolic links to RubyGems binaries.
 alternatives-ruby-gems() {
+  log-operation "$FUNCNAME" "$@"
   local ruby_binary
   local ruby_version
   local binary_path
@@ -114,26 +135,31 @@ alternatives-ruby-gems() {
 
 # Enable a list of Apache modules. This requires a server restart.
 apache-modules-enable() {
+  log-operation "$FUNCNAME" "$@"
   $SUDO a2enmod $*
 }
 
 # Disable a list of Apache modules. This requires a server restart.
 apache-modules-disable() {
+  log-operation "$FUNCNAME" "$@"
   $SUDO a2dismod $*
 }
 
 # Enable a list of Apache sites. This requires a server restart.
 apache-sites-enable() {
+  log-operation "$FUNCNAME" "$@"
   $SUDO a2ensite $*
 }
 
 # Disable a list of Apache sites. This requires a server restart.
 apache-sites-disable() {
+  log-operation "$FUNCNAME" "$@"
   $SUDO a2dissite $*
 }
 
 # Create a new Apache site and set up Fast-CGI components.
 apache-sites-create() {
+  log-operation "$FUNCNAME" "$@"
   local apache_site_name
   local apache_site_path
   local apache_site_user
@@ -225,6 +251,7 @@ EOD
 
 # Restart the Apache server and reload with new configuration.
 apache-restart() {
+  log-operation "$FUNCNAME" "$@"
   $SUDO service apache2 restart
 }
 
@@ -234,11 +261,13 @@ apache-restart() {
 
 # Create a database if one doesn't already exist.
 mysql-database-create() {
+  log-operation "$FUNCNAME" "$@"
   mysql -u root -e "CREATE DATABASE IF NOT EXISTS \`$1\` CHARACTER SET ${2:-utf8} COLLATE '${3:-utf8_general_ci}'"
 }
 
 # Restore a MySQL database from an archived backup.
 mysql-database-restore() {
+  log-operation "$FUNCNAME" "$@"
   local backups_database
   local backups_path
   local backups_file
@@ -261,12 +290,14 @@ mysql-database-restore() {
 # Allow remote passwordless 'root' access for anywhere.
 # This is only a good idea if the box is configured in 'Host-Only' network mode.
 mysql-remote-access-allow() {
+  log-operation "$FUNCNAME" "$@"
   mysql -u root -e "GRANT ALL PRIVILEGES ON *.* TO 'root'@'%' IDENTIFIED BY '' WITH GRANT OPTION; FLUSH PRIVILEGES;"
   $SUDO sed -e 's#127.0.0.1#0.0.0.0#g' -i '/etc/mysql/my.cnf'
 }
 
 # Restart the MySQL server and reload with new configuration.
 mysql-restart() {
+  log-operation "$FUNCNAME" "$@"
   $SUDO service mysql restart
 }
 
@@ -276,6 +307,7 @@ mysql-restart() {
 
 # Perform an unattended installation of package(s).
 ruby-gems-install() {
+  log-operation "$FUNCNAME" "$@"
   $SUDO gem install --no-ri --no-rdoc $*
 }
 
@@ -285,6 +317,7 @@ ruby-gems-install() {
 
 # Perform an unattended **global** installation of package(s).
 npm-packages-install() {
+  log-operation "$FUNCNAME" "$@"
   $SUDO npm config set yes true
   $SUDO npm install -g $*
 }
@@ -295,6 +328,7 @@ npm-packages-install() {
 
 # Download and install RubyGems from GitHub.
 github-gems-install() {
+  log-operation "$FUNCNAME" "$@"
   local clone_path
   local configuration
   which 'git' >/dev/null || apt-packages-install 'git-core'
