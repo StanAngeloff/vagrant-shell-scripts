@@ -290,6 +290,114 @@ apache-restart() {
 
 # }}}
 
+# {{{ Nginx
+
+# Figure out the path to a particular Nginx site.
+nginx-sites-path() {
+  echo "/etc/nginx/sites-${2:-available}/$1"
+}
+
+# Enable a list of Nginx sites. This requires a server restart.
+nginx-sites-enable() {
+  log-operation "$FUNCNAME" "$@"
+  local name
+  local file
+  for name in "$@"; do
+    file="$( nginx-sites-path "$name" 'enabled' )"
+    if [ ! -L "$file" ]; then
+      # '-f'orce because '! -L' above would still evaluate for broken symlinks.
+      $SUDO ln -fs "$file" "$( nginx-sites-path "$name" 'available' )"
+    fi
+  done
+}
+
+# Disable a list of Nginx sites. This requires a server restart.
+nginx-sites-disable() {
+  log-operation "$FUNCNAME" "$@"
+  local name
+  local file
+  for name in "$@"; do
+    file="$( nginx-sites-path "$name" 'enabled' )"
+    if [ -L "$file" ]; then
+      $SUDO unlink "$file"
+    fi
+  done
+}
+
+# Create a new Nginx site and set up Fast-CGI components.
+nginx-sites-create() {
+  log-operation "$FUNCNAME" "$@"
+  local nginx_site_name
+  local nginx_site_path
+  local nginx_index
+  local nginx_site_config
+  local code_block
+  nginx_site_name="$1"
+  nginx_site_path="${2:-/$nginx_site_name}"
+  nginx_index="${3:-index.html}"
+  nginx_site_config="$( nginx-sites-path "$nginx_site_name" 'available' )"
+  # Is PHP required?
+  if [ ! -z "$PHP" ]; then
+    if ! which php5-fpm; then
+      echo 'E: You must install php5-fpm to use PHP in Nginx.' 1>&2
+      exit 1
+    fi
+    nginx_index="index.php $nginx_index"
+  fi
+  code_block=$( cat <<-EOD
+server {
+  listen 80;
+
+  root ${nginx_site_path};
+
+  error_log /var/log/nginx/error.${nginx_site_name}.log debug;
+  access_log /var/log/nginx/access.${nginx_site_name}.log combined;
+
+  index ${nginx_index};
+
+  # Do not use kernel sendfile to deliver files to the client.
+  sendfile off;
+
+  # Prevent access to hidden files.
+  location ~ /\. {
+    access_log off;
+    log_not_found off;
+    deny all;
+  }
+EOD
+  )
+  # Is PHP required?
+  if [ ! -z "$PHP" ]; then
+    code_block=$( cat <<-EOD
+${code_block}
+
+  # Pass PHP scripts to PHP-FPM.
+  location ~ \.php\$ {
+    fastcgi_pass    unix:/var/run/php5-fpm.sock;
+    fastcgi_index   index.php;
+    include         fastcgi_params;
+    fastcgi_param   HTTP_AUTHORIZATION  \$http_authorization;
+  }
+EOD
+    )
+  fi
+  code_block=$( cat <<-EOD
+${code_block}
+}
+EOD
+  )
+  # Write site configuration to Nginx.
+  echo "$code_block" | $SUDO tee "$nginx_site_config" > /dev/null
+}
+
+# Restart the Nginx server and reload with new configuration.
+nginx-restart() {
+  log-operation "$FUNCNAME" "$@"
+  system-service nginx restart
+}
+
+# }}}
+
 # {{{ MySQL
 
 # Create a database if one doesn't already exist.

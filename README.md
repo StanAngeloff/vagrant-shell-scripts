@@ -248,6 +248,36 @@ Functions
     apache-restart
     ```
 
+### Nginx
+
+- `nginx-sites-enable(name[, name[, ...]])`
+
+    Enable a list of Nginx sites. This requires a server restart.
+
+- `nginx-sites-disable(name[, name[, ...]])`
+
+    Disable a list of Nginx sites. This requires a server restart.
+
+- `[PHP=any-value] nginx-sites-create(name[, path = name[, index = 'index.html']])`
+
+    Create a new Nginx site and set up Fast-CGI components.
+
+    The function creates a new file under `sites-available/name` where `name` is the first argument to the function.
+
+    The virtual host is pointed to `path` or `/name` if `path` is omitted.
+
+    If you prefix the function with `PHP=any-value`, PHP will be enabled through a PHP-FPM. You must have `php5-fpm` installed.
+
+    You can optionally specify space-separated directory index files to look for if a file name wasn't specified in the request.
+
+    Example (create a new `vagrant` website from `/vagrant` and enable PHP):
+
+    ```bash
+    PHP=/usr/bin/php5-fpm nginx-sites-create 'vagrant'
+    nginx-sites-enable vagrant
+    nginx-restart
+    ```
+
 ### MySQL
 
 - `mysql-database-create(name[, charset = 'utf8'[, collision = 'utf8_general_ci']])`
