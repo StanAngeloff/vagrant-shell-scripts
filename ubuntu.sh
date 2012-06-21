@@ -76,7 +76,6 @@ apt-packages-install() {
 # {{{ Default Commands
 
 # Update the Ruby binary link to point to a specific version.
-# TODO: ($bin_path = '/usr/bin/', $man_path = '/usr/share/man/man1/', $priority = 500)
 alternatives-ruby-install() {
   local bin_path
   local man_path
