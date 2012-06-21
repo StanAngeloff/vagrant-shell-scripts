@@ -338,7 +338,7 @@ nginx-sites-create() {
   nginx_site_config="$( nginx-sites-path "$nginx_site_name" 'available' )"
   # Is PHP required?
   if [ ! -z "$PHP" ]; then
-    if ! which php5-fpm; then
+    if ! which php5-fpm >/dev/null; then
       echo 'E: You must install php5-fpm to use PHP in Nginx.' 1>&2
       exit 1
     fi
