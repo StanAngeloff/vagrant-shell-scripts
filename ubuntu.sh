@@ -9,7 +9,7 @@ set -e
 # Return the value of the first argument or exit with an error message if empty.
 script-argument-create() {
   [ -z "$1" ] && {
-    echo "You must specify $2 to '${BASH_SOURCE[0]}'." 1>&2
+    echo "E: You must specify $2 to '${BASH_SOURCE[0]}'." 1>&2
     exit 1
   }
   echo "$1"
@@ -100,7 +100,7 @@ alternatives-ruby-gems() {
   ruby_binary=$( $SUDO update-alternatives --query 'ruby' | grep 'Value:' | cut -d' ' -f2- )
   ruby_version="${ruby_binary#*ruby}"
   if grep -v '^[0-9.]*$' <<< "$ruby_version"; then
-    echo "Could not determine version of RubyGems."
+    echo "E: Could not determine version of RubyGems."
   fi
   for binary_name in "$@"; do
     binary_path="/var/lib/gems/$ruby_version/bin/$binary_name"
@@ -300,7 +300,7 @@ github-gems-install() {
   local configuration
   which 'git' >/dev/null || apt-packages-install 'git-core'
   which 'gem' >/dev/null || {
-    echo 'Please install RubyGems to continue.' 1>&2
+    echo 'E: Please install RubyGems to continue.' 1>&2
     exit 1
   }
   for repository in "$@"; do
