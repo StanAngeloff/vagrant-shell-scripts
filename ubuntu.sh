@@ -131,6 +131,7 @@ alternatives-ruby-gems() {
   log-operation "$FUNCNAME" "$@"
   local ruby_binary
   local ruby_version
+  local binary_name
   local binary_path
   ruby_binary=$( $SUDO update-alternatives --query 'ruby' | grep 'Value:' | cut -d' ' -f2- )
   ruby_version="${ruby_binary#*ruby}"
@@ -344,6 +345,7 @@ npm-packages-install() {
 # Download and install RubyGems from GitHub.
 github-gems-install() {
   log-operation "$FUNCNAME" "$@"
+  local repository
   local clone_path
   local configuration
   which 'git' >/dev/null || apt-packages-install 'git-core'
