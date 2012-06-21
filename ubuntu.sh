@@ -92,6 +92,21 @@ apt-packages-install() {
 
 # }}}
 
+# {{{ System
+
+# Run a complete system (distribution) upgrade.
+system-upgrade() {
+  log-operation "$FUNCNAME" "$@"
+  apt-non-interactive -q dist-upgrade
+}
+
+# Command a system service, e.g., apache2, mysql, etc.
+system-service() {
+  $SUDO service "$1" "$2" 1>/dev/null
+}
+
+# }}}
+
 # {{{ Default Commands
 
 # Update the Ruby binary link to point to a specific version.
@@ -252,7 +267,7 @@ EOD
 # Restart the Apache server and reload with new configuration.
 apache-restart() {
   log-operation "$FUNCNAME" "$@"
-  $SUDO service apache2 restart
+  system-service apache2 restart
 }
 
 # }}}
@@ -298,7 +313,7 @@ mysql-remote-access-allow() {
 # Restart the MySQL server and reload with new configuration.
 mysql-restart() {
   log-operation "$FUNCNAME" "$@"
-  $SUDO service mysql restart
+  system-service mysql restart
 }
 
 # }}}

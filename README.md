@@ -127,6 +127,29 @@ Functions
       php5-cgi
     ```
 
+### System
+
+- `system-upgrade()`
+
+    Run a complete system (distribution) upgrade.
+
+    Example:
+
+    ```bash
+    apt-packages-update
+    system-upgrade
+    ```
+
+- `system-service(name, action)`
+
+    Command a system service, e.g., `apache2`, `mysql`, etc.
+
+    Example:
+
+    ```bash
+    system-service php5-fpm restart
+    ```
+
 ### Default Commands
 
 - `alternatives-ruby-install(version[, bin_path = '/usr/bin/'[, man_path = '/usr/share/man/man1/'[, priority = 500]]])`
