@@ -127,6 +127,18 @@ Functions
       php5-cgi
     ```
 
+- `apt-packages-purge(package[, package[, ...]])`
+
+    Perform an unattended complete removal (purge) of package(s).
+
+    Example (purge `apache2` unnecessarily installed as part of the `php5` meta-package):
+
+    ```bash
+    apt-packages-update
+    apt-packages-install php5
+    apt-packages-purge 'apache2*'
+    ```
+
 ### System
 
 - `system-upgrade()`

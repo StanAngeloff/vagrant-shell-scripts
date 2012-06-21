@@ -90,6 +90,23 @@ apt-packages-install() {
   apt-non-interactive -q install "$@"
 }
 
+# Perform an unattended complete removal (purge) of package(s).
+apt-packages-purge() {
+  log-operation "$FUNCNAME" "$@"
+  local result
+  local code
+  result=$( apt-non-interactive -q purge "$@" 2>&1 ) || {
+    code=$?
+    # If no packages matched, it's OK.
+    if [[ ! "$result" =~ "E: Couldn't find package" ]]; then
+      echo "$result" 1>&2
+      exit $code
+    fi
+  }
+  # Take care of any leftovers.
+  apt-non-interactive -q autoremove
+}
+
 # }}}
 
 # {{{ System
