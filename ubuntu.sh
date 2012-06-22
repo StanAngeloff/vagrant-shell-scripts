@@ -329,12 +329,16 @@ nginx-sites-create() {
   log-operation "$FUNCNAME" "$@"
   local nginx_site_name
   local nginx_site_path
-  local nginx_index
+  local nginx_site_index
+  local nginx_site_user
+  local nginx_site_group
   local nginx_site_config
   local code_block
   nginx_site_name="$1"
   nginx_site_path="${2:-/$nginx_site_name}"
-  nginx_index="${3:-index.html}"
+  nginx_site_user="${3:-$nginx_site_name}"
+  nginx_site_group="${4:-$nginx_site_user}"
+  nginx_site_index="${5:-index.html}"
   nginx_site_config="$( nginx-sites-path "$nginx_site_name" 'available' )"
   # Is PHP required?
   if [ ! -z "$PHP" ]; then
@@ -342,7 +346,7 @@ nginx-sites-create() {
       echo 'E: You must install php5-fpm to use PHP in Nginx.' 1>&2
       exit 1
     fi
-    nginx_index="index.php $nginx_index"
+    nginx_site_index="index.php $nginx_site_index"
   fi
   code_block=$( cat <<-EOD
 server {
@@ -353,7 +357,7 @@ server {
   error_log /var/log/nginx/error.${nginx_site_name}.log debug;
   access_log /var/log/nginx/access.${nginx_site_name}.log combined;
 
-  index ${nginx_index};
+  index ${nginx_site_index};
 
   # Do not use kernel sendfile to deliver files to the client.
   sendfile off;
@@ -380,6 +384,11 @@ ${code_block}
   }
 EOD
     )
+    # Run PHP-FPM as the selected user and group.
+    $SUDO sed \
+      -e 's#^\(user\)\s*=\s*[A-Za-z0-9-]\+#\1 = '"$nginx_site_user"'#g'   \
+      -e 's#^\(group\)\s*=\s*[A-Za-z0-9-]\+#\1 = '"$nginx_site_group"'#g' \
+      -i '/etc/php5/fpm/pool.d/www.conf'
   fi
   code_block=$( cat <<-EOD
 ${code_block}

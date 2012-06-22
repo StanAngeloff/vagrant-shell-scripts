@@ -258,7 +258,7 @@ Functions
 
     Disable a list of Nginx sites. This requires a server restart.
 
-- `[PHP=any-value] nginx-sites-create(name[, path = name[, index = 'index.html']])`
+- `[PHP=any-value] nginx-sites-create(name[, path = name[, user = name[, group = user[, index = 'index.html']]]])`
 
     Create a new Nginx site and set up Fast-CGI components.
 
@@ -267,6 +267,8 @@ Functions
     The virtual host is pointed to `path` or `/name` if `path` is omitted.
 
     If you prefix the function with `PHP=any-value`, PHP will be enabled through a PHP-FPM. You must have `php5-fpm` installed.
+
+    The arguments `user` and `group` are used to re-configure PHP-FPM's default `www` pool to run under the given account.
 
     You can optionally specify space-separated directory index files to look for if a file name wasn't specified in the request.
 
