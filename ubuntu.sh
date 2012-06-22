@@ -270,6 +270,7 @@ EOD
   fi
   code_block=$( cat <<-EOD
 ${code_block}
+${EXTRA}
 </VirtualHost>
 EOD
   )
@@ -392,6 +393,7 @@ EOD
   fi
   code_block=$( cat <<-EOD
 ${code_block}
+${EXTRA}
 }
 EOD
   )
