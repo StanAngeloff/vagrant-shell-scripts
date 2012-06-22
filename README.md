@@ -280,6 +280,18 @@ Functions
     nginx-restart
     ```
 
+### PHP
+
+- `php-settings-update(name, value)`
+
+    Update a PHP setting value in all instances of 'php.ini'.
+
+    Example (create a default timezone):
+
+    ```bash
+    php-settings-update 'date.timezone' 'Europe/London'
+    ```
+
 ### MySQL
 
 - `mysql-database-create(name[, charset = 'utf8'[, collision = 'utf8_general_ci']])`

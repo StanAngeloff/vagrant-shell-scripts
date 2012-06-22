@@ -409,6 +409,22 @@ nginx-restart() {
 
 # }}}
 
+# {{{ PHP
+
+# Update a PHP setting value in all instances of 'php.ini'.
+php-settings-update() {
+  local file
+  for file in $( $SUDO find /etc -type f -iname 'php*.ini' ); do
+    if grep "$1" "$file" >/dev/null; then
+      $SUDO sed -e 's#^[;]\?\s*\('"$1"'\)\s*=.*$#\1 = '"$2"'#g' -i "$file"
+    else
+      echo -e "[PHP]\n$1 = $2" | $SUDO tee -a "$file" >/dev/null
+    fi
+  done
+}
+
+# }}}
+
 # {{{ MySQL
 
 # Create a database if one doesn't already exist.
