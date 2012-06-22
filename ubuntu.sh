@@ -306,7 +306,7 @@ nginx-sites-enable() {
     file="$( nginx-sites-path "$name" 'enabled' )"
     if [ ! -L "$file" ]; then
       # '-f'orce because '! -L' above would still evaluate for broken symlinks.
-      $SUDO ln -fs "$file" "$( nginx-sites-path "$name" 'available' )"
+      $SUDO ln -fs "$( nginx-sites-path "$name" 'available' )" "$file"
     fi
   done
 }
