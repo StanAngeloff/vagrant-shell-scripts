@@ -18,9 +18,14 @@ script-argument-create() {
 # Log an operation
 log-operation() {
   local function_name
+  local function_values
+  local arg
   function_name="$1"
   shift
-  [ -z "$QUIET" ] && echo "$function_name(""$@"')...'
+  for arg in "$@"; do
+    function_values="$function_values ""'$( echo "$arg" | sed -e 's#\s\+# #g' )'"
+  done
+  [ -z "$QUIET" ] && echo "$function_name(""$( echo "$function_values" | sed -e 's#^ ##' )"')...'
 }
 
 # }}}
