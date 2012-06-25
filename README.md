@@ -311,7 +311,9 @@ Functions
 
 - `php-settings-update(name, value)`
 
-    Update a PHP setting value in all instances of 'php.ini'.
+    Update a PHP setting value.
+    This function will look for all `php.ini` files in `/etc`.
+    For each file, a `conf.d` directory would be created in the parent directory (if one doesn't already exist) and inside a file specifying the setting name/value will be placed.
 
     Example (create a default timezone):
 

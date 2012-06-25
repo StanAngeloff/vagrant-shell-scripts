@@ -430,13 +430,21 @@ nginx-restart() {
 
 # Update a PHP setting value in all instances of 'php.ini'.
 php-settings-update() {
-  local file
-  for file in $( $SUDO find /etc -type f -iname 'php*.ini' ); do
-    if grep "$1" "$file" >/dev/null; then
-      $SUDO sed -e 's#^[;]\?\s*\('"$1"'\)\s*=.*$#\1 = '"$2"'#g' -i "$file"
-    else
-      echo -e "[PHP]\n$1 = $2" | $SUDO tee -a "$file" >/dev/null
-    fi
+  log-operation "$FUNCNAME" "$@"
+  local args
+  local settings_name
+  local php_ini
+  local php_extra
+  args=( "$@" )
+  PREVIOUS_IFS="$IFS"
+  IFS='='
+  args="${args[*]}"
+  IFS="$PREVIOUS_IFS"
+  settings_name="$( echo "$args" | system-escape )"
+  for php_ini in $( $SUDO find /etc -type f -iname 'php*.ini' ); do
+    php_extra="$( dirname "$php_ini" )/conf.d"
+    $SUDO mkdir -p "$php_extra"
+    echo "$args" | $SUDO tee "$php_extra/0-$settings_name.ini" >/dev/null
   done
 }
 
