@@ -67,7 +67,7 @@ apt-packages-repository() {
     apt_repository="$( echo -e "$apt_repository\n$1" )"
     shift
   done
-  apt_file=$( echo "$apt_repository" | tail -n1 | sed -e 's#^deb\(-src\)\?\s\+\(\w\+://\)\?##' -e 's#[^[:alnum:]]\+#-#g' )
+  apt_file=$( echo "$apt_repository" | tail -n1 | sed -e 's#^deb\(-src\)\?\s\+\(\w\+://\)\?##' | system-escape )
   echo "$apt_repository" | $SUDO tee "/etc/apt/sources.list.d/$apt_file.list" >/dev/null
   $SUDO apt-key adv -q --keyserver "${2:-keyserver.ubuntu.com}" --recv-keys "$1" 1>/dev/null
 }
@@ -135,6 +135,13 @@ system-upgrade() {
 system-service() {
   log-operation "$FUNCNAME" "$@"
   $SUDO service "$1" "$2" 1>/dev/null
+}
+
+# Escape and normalize a string so it can be used safely in file names, etc.
+system-escape() {
+  while read arg; do
+    echo "${arg,,}" | sed -e 's#[^[:alnum:]]\+#-#g' -e 's#^-\+\|-\+$##g'
+  done
 }
 
 # }}}
@@ -519,7 +526,7 @@ github-gems-install() {
   }
   for repository in "$@"; do
     configuration=(${repository//@/"${IFS}"})
-    clone_path="$( mktemp -d -t 'github-'$( echo "${configuration[0]}" | sed -e 's#[^[:alnum:]]\+#-#g' )'-XXXXXXXX' )"
+    clone_path="$( mktemp -d -t 'github-'$( echo "${configuration[0]}" | system-escape )'-XXXXXXXX' )"
     git clone "git://github.com/${configuration[0]}" "$clone_path"
     (                                                   \
       cd "$clone_path"                               && \

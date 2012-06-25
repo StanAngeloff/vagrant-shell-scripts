@@ -179,6 +179,16 @@ Functions
     system-service php5-fpm restart
     ```
 
+- `system-escape`
+
+    Escape and normalize a string so it can be used safely in file names, etc.
+
+    Example:
+
+    ```bash
+    echo "Hello World!" | system-escape  # prints 'hello-world'
+    ```
+
 ### Default Commands
 
 - `alternatives-ruby-install(version[, bin_path = '/usr/bin/'[, man_path = '/usr/share/man/man1/'[, priority = 500]]])`
