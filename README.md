@@ -321,6 +321,19 @@ Functions
     php-settings-update 'date.timezone' 'Europe/London'
     ```
 
+- `php-pecl-install(extension[, extension[, ...]])`
+
+    Install (download, build, install) and enable a PECL extension.
+
+    Example (install MongoDB driver):
+
+    ```bash
+    apt-packages-install \
+      php5-dev           \
+      php-pear
+    php-pecl-install mongo
+    ```
+
 ### MySQL
 
 - `mysql-database-create(name[, charset = 'utf8'[, collision = 'utf8_general_ci']])`

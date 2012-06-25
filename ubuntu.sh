@@ -448,6 +448,18 @@ php-settings-update() {
   done
 }
 
+# Install (download, build, install) and enable a PECL extension.
+php-pecl-install() {
+  log-operation "$FUNCNAME" "$@"
+  local extension
+  for extension in "$@"; do
+    if ! $SUDO pecl list | grep "^$extension" >/dev/null; then
+      $SUDO pecl install -s "$extension" 1>/dev/null
+    fi
+    php-settings-update 'extension' "$extension.so"
+  done
+}
+
 # }}}
 
 # {{{ MySQL
