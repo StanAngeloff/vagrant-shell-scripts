@@ -25,7 +25,7 @@ log-operation() {
   for arg in "$@"; do
     function_values="$function_values ""'$( echo "$arg" | sed -e 's#\s\+# #g' )'"
   done
-  [ -z "$QUIET" ] && echo "$function_name(""$( echo "$function_values" | sed -e 's#^ ##' )"')...'
+  [ -z "$QUIET" ] && echo "$function_name(""$( echo "$function_values" | sed -e 's#^ ##' -e "s#\s\+''\$##g" )"')...'
 }
 
 # }}}
