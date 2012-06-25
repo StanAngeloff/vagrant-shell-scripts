@@ -124,6 +124,7 @@ system-upgrade() {
 
 # Command a system service, e.g., apache2, mysql, etc.
 system-service() {
+  log-operation "$FUNCNAME" "$@"
   $SUDO service "$1" "$2" 1>/dev/null
 }
 
@@ -290,7 +291,6 @@ EOD
 
 # Restart the Apache server and reload with new configuration.
 apache-restart() {
-  log-operation "$FUNCNAME" "$@"
   system-service apache2 restart
 }
 
@@ -408,7 +408,6 @@ EOD
 
 # Restart the Nginx server and reload with new configuration.
 nginx-restart() {
-  log-operation "$FUNCNAME" "$@"
   system-service nginx restart
 }
 
@@ -470,7 +469,6 @@ mysql-remote-access-allow() {
 
 # Restart the MySQL server and reload with new configuration.
 mysql-restart() {
-  log-operation "$FUNCNAME" "$@"
   system-service mysql restart
 }
 
