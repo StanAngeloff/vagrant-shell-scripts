@@ -88,6 +88,23 @@ Functions
     apt-mirror-pick 'bg'
     ```
 
+- `apt-packages-repository(repository[, repository[, ...]][, key[, server = 'keyserver.ubuntu.com']])`
+
+    Add a custom repository as a software source.
+
+    Each `repository` is a line as it would appear in your `/etc/apt/sources.list` file, e.g., <nobr>`deb URL DISTRIBUTION CATEGORY`</nobr>.
+
+    `key` and `server` are the signing key and server.
+    You need to add the key to your system so Ubuntu can verify the packages from the repository.
+
+    Example (install MongoDB from official repositories):
+
+    ```
+    apt-packages-repository 'deb http://downloads-distro.mongodb.org/repo/ubuntu-upstart dist 10gen' '7F0CEB10'
+    apt-packages-update
+    apt-packages-install mongodb-10gen
+    ```
+
 - `apt-packages-ppa(repository[, key[, server = 'keyserver.ubuntu.com']])`
 
     Add a Launchpad PPA as a software source.

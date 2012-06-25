@@ -58,17 +58,26 @@ apt-mirror-pick() {
     '/etc/apt/sources.list'
 }
 
+# Add a custom repository as a software source.
+apt-packages-repository() {
+  log-operation "$FUNCNAME" "$@"
+  local apt_repository
+  local apt_file
+  while [[ "$1" =~ ^deb ]]; do
+    apt_repository="$( echo -e "$apt_repository\n$1" )"
+    shift
+  done
+  apt_file=$( echo "$apt_repository" | tail -n1 | sed -e 's#^deb\(-src\)\?\s\+\(\w\+://\)\?##' -e 's#[^[:alnum:]]\+#-#g' )
+  echo "$apt_repository" | $SUDO tee "/etc/apt/sources.list.d/$apt_file.list" >/dev/null
+  $SUDO apt-key adv -q --keyserver "${2:-keyserver.ubuntu.com}" --recv-keys "$1" 1>/dev/null
+}
+
 # Add a Launchpad PPA as a software source.
 apt-packages-ppa() {
-  log-operation "$FUNCNAME" "$@"
-  local ppa_name
-  ppa_name=$( echo "$1" | sed -e 's#[^[:alnum:]]\+#-#g' )
-  ( cat <<-EOD
-deb     http://ppa.launchpad.net/$1/ubuntu lucid main
-deb-src http://ppa.launchpad.net/$1/ubuntu lucid main
-EOD
-  ) | $SUDO tee "/etc/apt/sources.list.d/$ppa_name.list" > /dev/null
-  $SUDO apt-key adv -q --keyserver "${3:-keyserver.ubuntu.com}" --recv-keys "$2" 1>/dev/null
+  apt-packages-repository                        \
+    "deb     http://ppa.launchpad.net/$1/ubuntu lucid main" \
+    "deb-src http://ppa.launchpad.net/$1/ubuntu lucid main" \
+    "$2" "$3"
 }
 
 # Perform a non-interactive `apt-get` command.
