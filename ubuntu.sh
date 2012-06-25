@@ -82,31 +82,29 @@ apt-packages-ppa() {
 
 # Perform a non-interactive `apt-get` command.
 apt-non-interactive() {
+  log-operation "$FUNCNAME" "$@"
   $SUDO                                    \
     DEBIAN_FRONTEND=noninteractive         \
     apt-get                                \
       -o Dpkg::Options::='--force-confdef' \
       -o Dpkg::Options::='--force-confold' \
-      -f -y -q                             \
+      -f -y -qq                            \
       --no-install-recommends              \
       "$@"
 }
 
 # Update `aptitude` packages without any prompts.
 apt-packages-update() {
-  log-operation "$FUNCNAME" "$@"
-  apt-non-interactive -q update
+  apt-non-interactive update
 }
 
 # Perform an unattended installation of package(s).
 apt-packages-install() {
-  log-operation "$FUNCNAME" "$@"
-  apt-non-interactive -q install "$@"
+  apt-non-interactive install "$@"
 }
 
 # Perform an unattended complete removal (purge) of package(s).
 apt-packages-purge() {
-  log-operation "$FUNCNAME" "$@"
   local result
   local code
   result=$( apt-non-interactive -q purge "$@" 2>&1 ) || {
@@ -118,7 +116,7 @@ apt-packages-purge() {
     fi
   }
   # Take care of any leftovers.
-  apt-non-interactive -q autoremove
+  apt-non-interactive autoremove
 }
 
 # }}}
@@ -127,8 +125,7 @@ apt-packages-purge() {
 
 # Run a complete system (distribution) upgrade.
 system-upgrade() {
-  log-operation "$FUNCNAME" "$@"
-  apt-non-interactive -q dist-upgrade
+  apt-non-interactive dist-upgrade
 }
 
 # Command a system service, e.g., apache2, mysql, etc.
