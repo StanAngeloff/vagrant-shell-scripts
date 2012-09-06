@@ -74,9 +74,11 @@ apt-packages-repository() {
 
 # Add a Launchpad PPA as a software source.
 apt-packages-ppa() {
+  local release
+  release=$( cat '/etc/lsb-release' | grep 'CODENAME' | cut -d'=' -f2 )
   apt-packages-repository                        \
-    "deb     http://ppa.launchpad.net/$1/ubuntu lucid main" \
-    "deb-src http://ppa.launchpad.net/$1/ubuntu lucid main" \
+    "deb     http://ppa.launchpad.net/$1/ubuntu $release main" \
+    "deb-src http://ppa.launchpad.net/$1/ubuntu $release main" \
     "$2" "$3"
 }
 
