@@ -432,6 +432,37 @@ Functions
       'chriseppstein/compass@master'
     ```
 
+Environment
+-----------
+
+The following variables can be defined before including the `ubuntu.sh` script:
+
+- `SUDO[ = 'sudo']`
+
+    Specify the prefix for all super-user commands. If your system is configured with no `sudo` command, use an empty value.
+
+    Example (set up Google DNS on a system with no `sudo` command):
+
+    ```bash
+    SUDO=
+
+    nameservers-local-purge
+    nameservers-append '8.8.8.8'
+    nameservers-append '8.8.4.4'
+    ```
+
+- `COLORS[ = 'always']`
+
+    Use terminal escape codes to print colourised output. If you wish to disable this, use a value other than `{always,yes,true,1}`.
+
+    Example (turn off colours in output):
+
+    ```bash
+    COLORS=never
+
+    apt-packages-update
+    ```
+
 Goal
 ----
 
