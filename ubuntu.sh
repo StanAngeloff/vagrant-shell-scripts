@@ -4,12 +4,26 @@ set -e
 
 [ -z "$SUDO" ] && SUDO='sudo'
 
+ERROR_BOLD="\e[1;31m"
+ERROR_NORMAL="\e[0;31m"
+DEBUG_BOLD="\e[1;35m"
+DEBUG_NORMAL="\e[0;35m"
+RESET="\e[00m"
+
+if [[ -n "$COLORS" ]] && [[ ! "$COLORS" =~ ^(always|yes|true|1)$ ]]; then
+  unset ERROR_BOLD
+  unset ERROR_NORMAL
+  unset DEBUG_BOLD
+  unset DEBUG_NORMAL
+  unset RESET
+fi
+
 # {{{ Utils
 
 # Return the value of the first argument or exit with an error message if empty.
 script-argument-create() {
   [ -z "$1" ] && {
-    echo "E: You must specify $2 to '${BASH_SOURCE[0]}'." 1>&2
+    echo -e "${ERROR_BOLD}E: ${ERROR_NORMAL}You must specify $2 to '${BASH_SOURCE[0]}'.${RESET}" 1>&2
     exit 1
   }
   echo "$1"
@@ -25,7 +39,7 @@ log-operation() {
   for arg in "$@"; do
     function_values="$function_values ""'$( echo "$arg" | sed -e 's#\s\+# #g' )'"
   done
-  [ -z "$QUIET" ] && echo "$function_name(""$( echo "$function_values" | sed -e 's#^ ##' -e "s#\s\+''\$##g" )"')...'
+  [ -z "$QUIET" ] && echo -e "${DEBUG_BOLD}$function_name${DEBUG_NORMAL}(""$( echo "$function_values" | sed -e 's#^ ##' -e "s#\s\+''\$##g" )"")...${RESET}"
 }
 
 # }}}
