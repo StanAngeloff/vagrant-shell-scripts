@@ -335,6 +335,10 @@ Functions
     php-pecl-install mongo
     ```
 
+- `php-fpm-restart`
+
+    Restart the PHP5-FPM server.
+
 ### MySQL
 
 - `mysql-database-create(name[, charset = 'utf8'[, collision = 'utf8_general_ci']])`

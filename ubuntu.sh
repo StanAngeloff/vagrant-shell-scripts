@@ -463,6 +463,11 @@ php-pecl-install() {
   done
 }
 
+# Restart the PHP5-FPM server.
+php-fpm-restart {
+  system-service php5-fpm restart
+}
+
 # }}}
 
 # {{{ MySQL
