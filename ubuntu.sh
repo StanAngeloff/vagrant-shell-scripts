@@ -464,7 +464,7 @@ php-pecl-install() {
 }
 
 # Restart the PHP5-FPM server.
-php-fpm-restart {
+php-fpm-restart() {
   system-service php5-fpm restart
 }
 
