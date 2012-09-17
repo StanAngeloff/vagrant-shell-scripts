@@ -160,7 +160,8 @@ Functions
 
 - `system-upgrade()`
 
-    Run a complete system (distribution) upgrade.
+    Run a complete system upgrade.
+    Be extremely careful as this operation can break packages, e.g., VirtualBox Guest Additions if a new kernel is installed.
 
     Example:
 

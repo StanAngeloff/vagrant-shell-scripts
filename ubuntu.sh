@@ -126,9 +126,9 @@ apt-packages-purge() {
 
 # {{{ System
 
-# Run a complete system (distribution) upgrade.
+# Run a complete system upgrade.
 system-upgrade() {
-  apt-non-interactive dist-upgrade
+  apt-non-interactive upgrade
 }
 
 # Command a system service, e.g., apache2, mysql, etc.
