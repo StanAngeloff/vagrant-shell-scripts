@@ -2,7 +2,7 @@
 
 set -e
 
-[ -z "$SUDO" ] && SUDO='sudo'
+[ -n "${SUDO-x}" ] && SUDO='sudo'
 
 ERROR_BOLD="\e[1;31m"
 ERROR_NORMAL="\e[0;31m"
