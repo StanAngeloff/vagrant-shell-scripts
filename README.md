@@ -112,12 +112,12 @@ Functions
     The `repository` is the Launchpad user and project name, e.g., `chris-lea/node.js`.
 
     `key` and `server` are the signing key and server.
-    You need to add the key to your system so Ubuntu can verify the packages from the PPA.
+    The key needs to added to your system so Ubuntu can verify the packages from the PPA.
 
     Example (install Node.js from unofficial PPA):
 
     ```bash
-    apt-packages-ppa 'chris-lea/node.js' 'C7917B12'
+    apt-packages-ppa 'chris-lea/node.js'
     apt-packages-update
     apt-packages-install \
       nodejs             \
@@ -396,7 +396,7 @@ Functions
     Example (install UglifyJS):
 
     ```bash
-    apt-packages-ppa 'chris-lea/node.js' 'C7917B12'
+    apt-packages-ppa 'chris-lea/node.js'
     apt-packages-update
     apt-packages-install \
       nodejs             \

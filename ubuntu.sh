@@ -61,25 +61,26 @@ apt-mirror-pick() {
 # Add a custom repository as a software source.
 apt-packages-repository() {
   log-operation "$FUNCNAME" "$@"
-  local apt_repository
-  local apt_file
-  while [[ "$1" =~ ^deb ]]; do
-    apt_repository="$( echo -e "$apt_repository\n$1" )"
+  which 'add-apt-repository' >/dev/null || apt-packages-install 'python-software-properties'
+  while [[ "$1" =~ ^deb ]] || [[ "$1" =~ ^ppa ]]; do
+    $SUDO add-apt-repository -y "$( echo "$1" | sed -e 's#^deb-src\b#deb#' )"
+    # See https://bugs.launchpad.net/ubuntu/+source/software-properties/+bug/972617
+    if [[ ! "$1" =~ ^deb-src ]]; then
+      $SUDO add-apt-repository --remove -y "$( echo "$1" | sed -e 's#^deb\b#deb-src#' )" 1>/dev/null
+    fi
     shift
   done
-  apt_file=$( echo "$apt_repository" | tail -n1 | sed -e 's#^deb\(-src\)\?\s\+\(\w\+://\)\?##' | system-escape )
-  echo "$apt_repository" | $SUDO tee "/etc/apt/sources.list.d/$apt_file.list" >/dev/null
-  $SUDO apt-key adv -q --keyserver "${2:-keyserver.ubuntu.com}" --recv-keys "$1" 1>/dev/null
+  if [ -n "$1" ]; then
+    $SUDO apt-key adv -q --keyserver "${2:-keyserver.ubuntu.com}" --recv-keys "$1" 1>/dev/null
+  fi
 }
 
 # Add a Launchpad PPA as a software source.
 apt-packages-ppa() {
-  local release
-  release=$( cat '/etc/lsb-release' | grep 'CODENAME' | cut -d'=' -f2 )
-  apt-packages-repository                        \
-    "deb     http://ppa.launchpad.net/$1/ubuntu $release main" \
-    "deb-src http://ppa.launchpad.net/$1/ubuntu $release main" \
-    "$2" "$3"
+  local ppa_repository
+  ppa_repository="ppa:$1"
+  shift
+  apt-packages-repository "$ppa_repository" "$@"
 }
 
 # Perform a non-interactive `apt-get` command.
