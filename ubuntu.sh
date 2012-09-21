@@ -55,8 +55,8 @@ nameservers-local-purge() {
 # Set up an IP as a DNS name server if not already present in 'resolv.conf'.
 nameservers-append() {
   log-operation "$FUNCNAME" "$@"
-  grep "$1" '/etc/resolv.conf' > /dev/null || \
-    ( echo "nameserver $1" | $SUDO tee -a '/etc/resolv.conf' > /dev/null )
+  grep "$1" '/etc/resolv.conf' >/dev/null || \
+    ( echo "nameserver $1" | $SUDO tee -a '/etc/resolv.conf' >/dev/null )
 }
 
 # }}}
@@ -311,12 +311,12 @@ ${EXTRA}
 EOD
   )
   # Write site configuration to Apache.
-  echo "$code_block" | $SUDO tee "$apache_site_config" > /dev/null
+  echo "$code_block" | $SUDO tee "$apache_site_config" >/dev/null
   # Configure permissions for /.cgi-bin/ and SuExec.
   $SUDO chown -R "$apache_site_user":"$apache_site_group" "$cgi_system_path"
   # Update SuExec to accept the new document root for this website.
-  grep "$apache_site_path" '/etc/apache2/suexec/www-data' > /dev/null || \
-    ( $SUDO sed -e '1s#^#'"$apache_site_path""\n"'#' -i '/etc/apache2/suexec/www-data' > /dev/null )
+  grep "$apache_site_path" '/etc/apache2/suexec/www-data' >/dev/null || \
+    ( $SUDO sed -e '1s#^#'"$apache_site_path""\n"'#' -i '/etc/apache2/suexec/www-data' >/dev/null )
 }
 
 # Restart the Apache server and reload with new configuration.
@@ -433,7 +433,7 @@ ${EXTRA}
 EOD
   )
   # Write site configuration to Nginx.
-  echo "$code_block" | $SUDO tee "$nginx_site_config" > /dev/null
+  echo "$code_block" | $SUDO tee "$nginx_site_config" >/dev/null
 }
 
 # Restart the Nginx server and reload with new configuration.
