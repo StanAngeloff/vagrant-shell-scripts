@@ -413,18 +413,23 @@ ${code_block}
 
   # Pass PHP scripts to PHP-FPM.
   location ~ \.php\$ {
-    fastcgi_pass    unix:/var/run/php5-fpm.sock;
-    fastcgi_index   index.php;
     include         fastcgi_params;
-    fastcgi_param   HTTP_AUTHORIZATION  \$http_authorization;
+    fastcgi_pass    unix:/var/run/php5-fpm.${nginx_site_name}.sock;
+    fastcgi_index   index.php;
+    fastcgi_split_path_info ^((?U).+\.php)(/?.+)\$;
+    fastcgi_param PATH_INFO \$fastcgi_path_info;
+    fastcgi_param PATH_TRANSLATED \$document_root\$fastcgi_path_info;
+    fastcgi_param HTTP_AUTHORIZATION \$http_authorization;
   }
 EOD
     )
     # Run PHP-FPM as the selected user and group.
     $SUDO sed \
-      -e 's#^\(user\)\s*=\s*[A-Za-z0-9-]\+#\1 = '"$nginx_site_user"'#g'   \
-      -e 's#^\(group\)\s*=\s*[A-Za-z0-9-]\+#\1 = '"$nginx_site_group"'#g' \
-      -i '/etc/php5/fpm/pool.d/www.conf'
+      -e 's#^\[www\]$#['"$nginx_site_name"']#g'                                            \
+      -e 's#^\(user\)\s*=\s*[A-Za-z0-9-]\+#\1 = '"$nginx_site_user"'#g'                    \
+      -e 's#^\(group\)\s*=\s*[A-Za-z0-9-]\+#\1 = '"$nginx_site_group"'#g'                  \
+      -e 's#^\(listen\)\s*=\s*.\+$#\1 = /var/run/php5-fpm.'"$nginx_site_name"'.sock#g'     \
+      < '/etc/php5/fpm/pool.d/www.conf' | $SUDO tee '/etc/php5/fpm/pool.d/'"$nginx_site_name"'.conf' >/dev/null
   fi
   code_block=$( cat <<-EOD
 ${code_block}
