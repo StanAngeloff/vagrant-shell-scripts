@@ -75,7 +75,7 @@ apt-mirror-pick() {
 # Add a custom repository as a software source.
 apt-packages-repository() {
   log-operation "$FUNCNAME" "$@"
-  which 'add-apt-repository' >/dev/null || apt-packages-install 'python-software-properties'
+  which 'add-apt-repository' >/dev/null || ( apt-packages-update; apt-packages-install 'python-software-properties' )
   while [[ "$1" =~ ^deb ]] || [[ "$1" =~ ^ppa ]]; do
     $SUDO add-apt-repository -y "$( echo "$1" | sed -e 's#^deb-src\b#deb#' )" 1>/dev/null
     # See https://bugs.launchpad.net/ubuntu/+source/software-properties/+bug/972617
