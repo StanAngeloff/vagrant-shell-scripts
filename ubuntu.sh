@@ -475,8 +475,8 @@ php-settings-update() {
 # Install (download, build, install) and enable a PECL extension.
 php-pecl-install() {
   log-operation "$FUNCNAME" "$@"
-
   local extension
+  dependency-install 'phpize'
   for extension in "$@"; do
     if ! $SUDO pecl list | grep "^$extension" >/dev/null; then
       $SUDO pecl install -s "$extension" 1>/dev/null
@@ -620,6 +620,7 @@ dependency-install() {
 
 # Create associations for packages we are going to install.
 dependency-package-associate 'add-apt-repository' 'python-software-properties'
+dependency-package-associate 'phpize' 'php5-dev'
 dependency-package-associate 'git' 'git-core'
 
 # }}}
