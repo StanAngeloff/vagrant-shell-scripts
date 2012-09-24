@@ -473,6 +473,7 @@ php-settings-update() {
 # Install (download, build, install) and enable a PECL extension.
 php-pecl-install() {
   log-operation "$FUNCNAME" "$@"
+
   local extension
   for extension in "$@"; do
     if ! $SUDO pecl list | grep "^$extension" >/dev/null; then
@@ -563,7 +564,7 @@ github-gems-install() {
   local repository
   local clone_path
   local configuration
-  which 'git' >/dev/null || apt-packages-install 'git-core'
+  which 'git' >/dev/null || ( apt-packages-update; apt-packages-install 'git-core' )
   which 'gem' >/dev/null || {
     echo 'E: Please install RubyGems to continue.' 1>&2
     exit 1
