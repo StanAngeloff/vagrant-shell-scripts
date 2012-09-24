@@ -476,12 +476,20 @@ php-settings-update() {
 php-pecl-install() {
   log-operation "$FUNCNAME" "$@"
   local extension
+  local mode
   dependency-install 'phpize'
   for extension in "$@"; do
     if ! $SUDO pecl list | grep "^$extension" >/dev/null; then
       $SUDO pecl install -s "$extension" 1>/dev/null
     fi
-    php-settings-update 'extension' "$extension.so"
+    # Special case for Zend extensions.
+    if [[ "$extension" =~ ^(xdebug)$ ]]; then
+      mode="zend_extension"
+      extension="$( php-config --extension-dir )/$extension"
+    else
+      mode="extension"
+    fi
+    php-settings-update "$mode" "$extension.so"
   done
 }
 
