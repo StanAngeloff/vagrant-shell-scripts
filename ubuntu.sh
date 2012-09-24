@@ -77,7 +77,7 @@ apt-packages-repository() {
   log-operation "$FUNCNAME" "$@"
   which 'add-apt-repository' >/dev/null || apt-packages-install 'python-software-properties'
   while [[ "$1" =~ ^deb ]] || [[ "$1" =~ ^ppa ]]; do
-    $SUDO add-apt-repository -y "$( echo "$1" | sed -e 's#^deb-src\b#deb#' )"
+    $SUDO add-apt-repository -y "$( echo "$1" | sed -e 's#^deb-src\b#deb#' )" 1>/dev/null
     # See https://bugs.launchpad.net/ubuntu/+source/software-properties/+bug/972617
     if [[ ! "$1" =~ ^deb-src ]]; then
       $SUDO add-apt-repository --remove -y "$( echo "$1" | sed -e 's#^deb\b#deb-src#' )" 1>/dev/null
