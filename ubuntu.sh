@@ -75,7 +75,7 @@ apt-mirror-pick() {
 # Add a custom repository as a software source.
 apt-packages-repository() {
   log-operation "$FUNCNAME" "$@"
-  which 'add-apt-repository' >/dev/null || ( apt-packages-update; apt-packages-install 'python-software-properties' )
+  dependency-install 'add-apt-repository'
   while [[ "$1" =~ ^deb ]] || [[ "$1" =~ ^ppa ]]; do
     $SUDO add-apt-repository -y "$( echo "$1" | sed -e 's#^deb-src\b#deb#' )" 1>/dev/null
     # See https://bugs.launchpad.net/ubuntu/+source/software-properties/+bug/972617
@@ -564,7 +564,7 @@ github-gems-install() {
   local repository
   local clone_path
   local configuration
-  which 'git' >/dev/null || ( apt-packages-update; apt-packages-install 'git-core' )
+  dependency-install 'git'
   which 'gem' >/dev/null || {
     echo 'E: Please install RubyGems to continue.' 1>&2
     exit 1
@@ -582,5 +582,42 @@ github-gems-install() {
     rm -Rf "$clone_path"
   done
 }
+
+# }}}
+
+# {{{ Dependency Management
+
+# Associate a package name with a command, e.g., 'git' <- 'git-core'.
+dependency-package-associate() {
+  local variable_name
+  variable_name="DEPENDENCY_$(echo "$1" | system-escape '_' | tr '[a-z]' '[A-Z]' )"
+  # If a second argument was specified...
+  if [ -n "$2" ]; then
+    # ...and a package name hasn't been associated with the command yet...
+    if [ -z "${!variable_name}"]; then
+      # ...create a new association.
+      eval $variable_name=\""$2"\"
+    fi
+  else
+    echo "${!variable_name}"
+  fi
+}
+
+# Satisfy a dependency by installing the associated package.
+dependency-install() {
+  local binary_name
+  local package_name
+  for binary_name in "$@"; do
+    which "$binary_name" >/dev/null || {
+      package_name="$( dependency-package-associate "$binary_name" )"
+      $SUDO apt-cache show "$package_name" 1>/dev/null 2>&1 || apt-packages-update
+      apt-packages-install "$package_name"
+    }
+  done
+}
+
+# Create associations for packages we are going to install.
+dependency-package-associate 'add-apt-repository' 'python-software-properties'
+dependency-package-associate 'git' 'git-core'
 
 # }}}
