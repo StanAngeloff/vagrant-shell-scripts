@@ -153,8 +153,10 @@ system-service() {
 
 # Escape and normalize a string so it can be used safely in file names, etc.
 system-escape() {
+  local glue
+  glue=${1:--}
   while read arg; do
-    echo "${arg,,}" | sed -e 's#[^[:alnum:]]\+#-#g' -e 's#^-\+\|-\+$##g'
+    echo "${arg,,}" | sed -e 's#[^[:alnum:]]\+#'"$glue"'#g' -e 's#^'"$glue"'\+\|'"$glue"'\+$##g'
   done
 }
 

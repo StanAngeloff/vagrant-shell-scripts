@@ -180,9 +180,10 @@ Functions
     system-service php5-fpm restart
     ```
 
-- `system-escape`
+- `system-escape([glue = '-'])`
 
     Escape and normalize a string so it can be used safely in file names, etc.
+    You can optionally specify `glue` to be a different character, e.g., an underscore `_` if you are using the result as part of a variable name.
 
     Example:
 
