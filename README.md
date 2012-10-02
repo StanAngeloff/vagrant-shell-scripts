@@ -244,7 +244,7 @@ Functions
 
     Disable a list of Apache sites. This requires a server restart.
 
-- `[PHP=/path/to/binary] apache-sites-create(name[, path = name[, user = name[, group = user]]])`
+- `[PHP=/path/to/binary] apache-sites-create(name[, path = name[, user = name[, group = user[, verbosity = info]]]])`
 
     Create a new Apache site and set up Fast-CGI components.
 
@@ -287,7 +287,7 @@ Functions
 
     Disable a list of Nginx sites. This requires a server restart.
 
-- `[PHP=any-value] nginx-sites-create(name[, path = name[, user = name[, group = user[, index = 'index.html']]]])`
+- `[PHP=any-value] nginx-sites-create(name[, path = name[, user = name[, group = user[, index = 'index.html'[, verbosity = info]]]]])`
 
     Create a new Nginx site and set up Fast-CGI components.
 

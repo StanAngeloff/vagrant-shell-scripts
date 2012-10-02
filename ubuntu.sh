@@ -236,6 +236,7 @@ apache-sites-create() {
   local apache_site_user
   local apache_site_group
   local apache_site_config
+  local apache_verbosity
   local cgi_action
   local cgi_apache_path
   local cgi_system_path
@@ -244,6 +245,7 @@ apache-sites-create() {
   apache_site_path="${2:-/$apache_site_name}"
   apache_site_user="${3:-$apache_site_name}"
   apache_site_group="${4:-$apache_site_user}"
+  apache_verbosity="${5:-info}"
   apache_site_config="/etc/apache2/sites-available/$apache_site_name"
   cgi_apache_path="/cgi-bin/"
   cgi_system_path="$apache_site_path/.cgi-bin/"
@@ -260,7 +262,7 @@ apache-sites-create() {
 <VirtualHost *:80>
   DocumentRoot ${apache_site_path}
 
-  LogLevel debug
+  LogLevel ${apache_verbosity}
   ErrorLog /var/log/apache2/error.${apache_site_name}.log
   CustomLog /var/log/apache2/access.${apache_site_name}.log combined
 
@@ -370,6 +372,7 @@ nginx-sites-create() {
   local nginx_site_index
   local nginx_site_user
   local nginx_site_group
+  local nginx_verbosity
   local nginx_site_config
   local code_block
   nginx_site_name="$1"
@@ -377,6 +380,7 @@ nginx-sites-create() {
   nginx_site_user="${3:-$nginx_site_name}"
   nginx_site_group="${4:-$nginx_site_user}"
   nginx_site_index="${5:-index.html}"
+  nginx_verbosity="${6:-info}"
   nginx_site_config="$( nginx-sites-path "$nginx_site_name" 'available' )"
   # Is PHP required?
   if [ ! -z "$PHP" ]; then
@@ -392,7 +396,7 @@ server {
 
   root ${nginx_site_path};
 
-  error_log /var/log/nginx/error.${nginx_site_name}.log debug;
+  error_log /var/log/nginx/error.${nginx_site_name}.log ${nginx_verbosity};
   access_log /var/log/nginx/access.${nginx_site_name}.log combined;
 
   index ${nginx_site_index};
