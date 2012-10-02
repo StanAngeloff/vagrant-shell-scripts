@@ -551,10 +551,20 @@ mysql-restart() {
 
 # {{{ RubyGems
 
-# Perform an unattended installation of package(s).
+# Check the installed version of a package.
+ruby-gems-version() {
+  $SUDO ruby -rubygems -e "puts Gem::Specification::find_by_name('$1').version" 2>/dev/null || \
+    echo '0.0.0'
+}
+
+# Perform an unattended installation of a package.
 ruby-gems-install() {
   log-operation "$FUNCNAME" "$@"
-  $SUDO gem install --no-ri --no-rdoc $*
+  local gem_version
+  gem_version="$( ruby-gems-version "$1" )"
+  if [[ "$gem_version" = '0.0.0' ]]; then
+    $SUDO gem install --no-ri --no-rdoc "$@"
+  fi
 }
 
 # }}}
@@ -578,6 +588,7 @@ github-gems-install() {
   local repository
   local clone_path
   local configuration
+  local gem_version
   dependency-install 'git'
   which 'gem' >/dev/null || {
     echo 'E: Please install RubyGems to continue.' 1>&2
@@ -585,15 +596,18 @@ github-gems-install() {
   }
   for repository in "$@"; do
     configuration=(${repository//@/"${IFS}"})
-    clone_path="$( mktemp -d -t 'github-'$( echo "${configuration[0]}" | system-escape )'-XXXXXXXX' )"
-    git clone "git://github.com/${configuration[0]}" "$clone_path"
-    (                                                   \
-      cd "$clone_path"                               && \
-      git checkout "${configuration[1]:-master}"     && \
-      gem build *.gemspec                            && \
-      ruby-gems-install *.gem                           \
-    )
-    rm -Rf "$clone_path"
+    gem_version="$( ruby-gems-version "${configuration[0]#*\/}" )"
+    if [[ "$gem_version" = '0.0.0' ]]; then
+      clone_path="$( mktemp -d -t 'github-'$( echo "${configuration[0]}" | system-escape )'-XXXXXXXX' )"
+      git clone --progress "git://github.com/${configuration[0]}" "$clone_path"
+      (                                                   \
+        cd "$clone_path"                               && \
+        git checkout -q "${configuration[1]:-master}"  && \
+        gem build *.gemspec                            && \
+        ruby-gems-install *.gem                           \
+      )
+      rm -Rf "$clone_path"
+    fi
   done
 }
 

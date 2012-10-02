@@ -378,9 +378,17 @@ Functions
 
 ### RubyGems
 
-- `ruby-gems-install(package[, package[, ...]])`
+- `ruby-gems-version(package)`
 
-    Perform an unattended installation of package(s).
+    Check the installed version of a package, if any.
+
+    When a package is not installed, `0.0.0` is returned.
+
+- `ruby-gems-install(package[, arg[, ...]])`
+
+    Perform an unattended installation of a package.
+
+    If a package is already installed, it will not be re-installed or upgraded.
 
     Example:
 
@@ -391,6 +399,7 @@ Functions
       rubygems1.9.1
     alternatives-ruby-install 1.9.1
     ruby-gems-install pkg-config
+    ruby-gems-install sass --version '3.2.1'
     ```
 
 ### NPM (Node Package Manager)
@@ -417,6 +426,8 @@ Functions
     Download and install RubyGems from GitHub.
 
     The format of each `repository` is `user/project[@branch]` where `branch` can be omitted and defaults to `master`.
+
+    If a package is already installed, it will not be re-installed or upgraded.
 
     Example (install unstable versions of Sass and Compass):
 
