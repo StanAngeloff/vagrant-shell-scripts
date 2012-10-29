@@ -638,7 +638,7 @@ dependency-install() {
   for binary_name in "$@"; do
     which "$binary_name" >/dev/null || {
       package_name="$( dependency-package-associate "$binary_name" )"
-      $SUDO apt-cache show "$package_name" 1>/dev/null 2>&1 || apt-packages-update
+      ( $SUDO apt-cache pkgnames | grep "$package_name" 1>/dev/null ) || apt-packages-update
       apt-packages-install "$package_name"
     }
   done
