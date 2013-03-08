@@ -479,21 +479,23 @@ php-settings-update() {
 # Install (download, build, install) and enable a PECL extension.
 php-pecl-install() {
   log-operation "$FUNCNAME" "$@"
-  local extension
+  local specification extension version
   local mode
   dependency-install 'phpize'
-  for extension in "$@"; do
-    if ! $SUDO pecl list | grep "^$extension" >/dev/null; then
-      $SUDO pecl install -s "$extension" 1>/dev/null
+  for specification in "$@"; do
+    extension="${specification%-*}"
+    version="${specification#*-}"
+    if ! $SUDO pecl list | grep "^${extension}" >/dev/null; then
+      $SUDO pecl install -s "$specification" 1>/dev/null
     fi
     # Special case for Zend extensions.
     if [[ "$extension" =~ ^(xdebug)$ ]]; then
       mode="zend_extension"
-      extension="$( php-config --extension-dir )/$extension"
+      extension="$( php-config --extension-dir )/${extension}"
     else
       mode="extension"
     fi
-    php-settings-update "$mode" "$extension.so"
+    php-settings-update "$mode" "${extension}.so"
   done
 }
 
