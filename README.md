@@ -449,6 +449,22 @@ Functions
       'chriseppstein/compass@master'
     ```
 
+- `github-php-extension-install(specification[, specification[, ...]])`
+
+    Download and install PHP extensions from GitHub.
+
+    The `specification` is a string which contains the repository name (mandatory), version (optional) and `./configure` arguments (optional):
+    `repository@version --option --option argument`
+
+    Example (install native PHP Redis extension from GitHub):
+
+    ```bash
+    github-php-extension-install 'nicolasff/phpredis'
+
+    # Use a specific commit and pass arguments to `./configure`.
+    github-php-extension-install 'nicolasff/phpredis@5e5fa7895f --enable-redis-igbinary'
+    ```
+
 Environment
 -----------
 

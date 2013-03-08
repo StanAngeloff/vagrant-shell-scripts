@@ -612,6 +612,55 @@ github-gems-install() {
   done
 }
 
+# Install (download, build, install) and enable a PECL extension.
+github-php-extension-install() {
+  log-operation "$FUNCNAME" "$@"
+  local specification repository version arguments extension
+  local raw_config_uri clone_path
+  # We must have 'phpize' available when compiling extensions from source.
+  dependency-install 'git'
+  dependency-install 'curl'
+  dependency-install 'phpize'
+  for specification in "$@"; do
+    repository="$specification"
+    version='master'
+    # If we have a space anywhere in the string, assume `configure` arguments.
+    if [[ "$repository" =~ ' ' ]]; then
+      arguments=( ${repository#* } )
+      repository="${repository%% *}"
+    fi
+    # If we have a version specified, split the repository name and version.
+    if [[ "$repository" =~ '@' ]]; then
+      version="${repository#*@}"
+      repository="${repository%@*}"
+    fi
+    # Let's figure out the extension name by looking at the autoconf file.
+    raw_config_uri="https://raw.github.com/${repository}/${version}/config.m4"
+    extension="$( curl --insecure --silent "$raw_config_uri" | grep -e 'PHP_NEW_EXTENSION' | cut -d'(' -f2 | cut -d',' -f1 | tr -d ' ' )"
+    if [ -z "$extension" ]; then
+      echo -e "${ERROR_BOLD}E: ${ERROR_NORMAL}Cannot find extension name in ${raw_config_uri}, expected 'PHP_NEW_EXTENSION'.${RESET}" 1>&2
+      exit 1
+    fi
+    # We can't use PECL to determine if the extension is installed
+    # so let's look for the .so file in the PHP extensions directory.
+    if ! $SUDO ls -1 "$( php-config --extension-dir )" | grep "^${extension}.so$" >/dev/null; then
+      clone_path="$( mktemp -d -t 'github-'$( echo "${repository}" | system-escape )'-XXXXXXXX' )"
+      # Clone, configure, make, install... the usual.
+      git clone --progress "git://github.com/${repository}" "$clone_path"
+      (                                  \
+        cd "$clone_path"              && \
+        git checkout -q "$version"    && \
+        phpize                        && \
+        ./configure "${arguments[@]}" && \
+        make && $SUDO make install       \
+      )
+      # Clean up and explicitly load the extension.
+      rm -Rf "$clone_path"
+      php-settings-update 'extension' "${extension}.so"
+    fi
+  done
+}
+
 # }}}
 
 # {{{ Dependency Management
@@ -649,5 +698,6 @@ dependency-install() {
 dependency-package-associate 'add-apt-repository' 'python-software-properties'
 dependency-package-associate 'phpize' 'php5-dev'
 dependency-package-associate 'git' 'git-core'
+dependency-package-associate 'curl' 'curl'
 
 # }}}
