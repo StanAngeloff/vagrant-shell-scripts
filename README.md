@@ -327,6 +327,8 @@ Functions
 
     Install (download, build, install) and enable a PECL extension.
 
+    You may optionally specify the state/version using '@version'.
+
     Example (install MongoDB driver):
 
     ```bash
@@ -334,6 +336,9 @@ Functions
       php5-dev           \
       php-pear
     php-pecl-install mongo
+
+    # Install a specific version of 'proctitle'.
+    php-pecl-install proctitle@0.1.2
     ```
 
 - `php-fpm-restart`
