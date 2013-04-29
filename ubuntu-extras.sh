@@ -71,25 +71,37 @@ package-uri-install() {
   local package_path
   local package_version
   local package_index
-  log-operation "$FUNCNAME" "$@"
   package_name="$1"
   package_uri="$2"
   package_index="$3"
   package_path="$4"
   package_version="$5"
   if [ -z "$package_path" ]; then
-    package_path="$( echo "$package_name" | tr 'a-z' 'A-Z' )_PATH"
+    package_path="$( echo "$package_name" | tr '-' '_' | tr 'a-z' 'A-Z' )_PATH"
     package_path="${!package_path}"
   fi
   if [ -z "$package_version" ]; then
-    package_version="$( echo "$package_name" | tr 'a-z' 'A-Z' )_VERSION"
+    package_version="$( echo "$package_name" | tr '-' '_' | tr 'a-z' 'A-Z' )_VERSION"
     package_version="${!package_version}"
   fi
   if [ -z "$package_index" ]; then
     package_index="${package_path}/bin/${package_name}"
   fi
+  for variable_name in 'package_uri' 'package_index'; do
+    eval "$variable_name"=\""$( \
+        echo "${!variable_name}" | \
+        sed -e 's#%name#'"$package_name"'#g' | \
+        sed -e 's#%version#'"$package_version"'#g' |
+        sed -e 's#%path#'"$package_path"'#g' \
+      )"\"
+  done
+  log-operation "$FUNCNAME" \
+    "$package_name" \
+    "$package_uri" \
+    "$package_index" \
+    "$package_path" \
+    "$package_version"
   if [ ! -f "$package_index" ]; then
-    package_uri="$( echo "$package_uri" | sed -e 's#%version#'"$package_version"'#g' )"
     TMP_PATH="$( mktemp -d -t "${package_name}-XXXXXXXX" )"
     TMP_FILE="$TMP_PATH/$( basename "$package_uri" )"
     package-uri-download "$package_uri" "$TMP_FILE"

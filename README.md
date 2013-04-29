@@ -509,9 +509,11 @@ The `ubuntu-extras.sh` file provides useful but rarely used commands.
 
     Download, unpack and install the package at `package_uri` to `package_path`.
     This function does a lot internally and can be used to automate installations of certain ZIP distributions.
-    The URI supports placeholders:
+    The URI and path support placeholders:
 
-    * `%version` will be substituted with the `package_version`.
+    * `%name` will be substituted with the `package_name`,
+    * `%path` for `package_path`,
+    * `%version` for `package_version`.
 
     `package_index` should be a file which determines if the package has already been installed. It would usually point to a binary file inside the distribution archive. If omitted, it defaults to `{package_path}/bin/{package_name}`.
 
