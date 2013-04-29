@@ -13,6 +13,7 @@ archive-file-unpack() {
   local file
   local directory
   local command
+  local dependency
   file="$( readlink -f "$1" )"
   directory="${2:-.}"
   case "$file" in
@@ -20,10 +21,10 @@ archive-file-unpack() {
     *.tar.bz2 | *.tbz2 ) command='tar -jxf'   ;;
     *.tar.xz           ) command='tar -Jxf'   ;;
     *.tar              ) command='tar -xf'    ;;
-    *.zip              ) command='unzip -q'   ;;
+    *.zip              ) command='unzip -q'   ; dependency='unzip' ;;
     *.7z               ) command='7za x'      ;;
     *.gzip  | *.gz     ) command='gunzip -q'  ;;
-    *.bzip2 | *.bz2    ) command='bunzip2 -q' ;;
+    *.bzip2 | *.bz2    ) command='bunzip2 -q' ; dependency='bzip2' ;;
     * )
       echo "$0: Unsupported file format: $file" >/dev/stderr ;
       return 2
@@ -31,6 +32,9 @@ archive-file-unpack() {
   esac
   if [ ! -d "$directory" ]; then
     mkdir -p "$directory"
+  fi
+  if [ -n "$dependency" ]; then
+    dependency-install "$dependency"
   fi
   ( cd "$directory" && eval $command \"\$file\" )
 }
@@ -110,5 +114,13 @@ temporary-cleanup() {
   done
   exit $exit_code
 }
+
+# }}}
+
+# {{{ Dependency Management
+
+# Create associations for packages we are going to install.
+dependency-package-associate 'unzip' 'unzip'
+dependency-package-associate 'bzip2' 'bzip2'
 
 # }}}
