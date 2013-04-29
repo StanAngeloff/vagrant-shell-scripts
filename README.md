@@ -465,6 +465,104 @@ Functions
     github-php-extension-install 'nicolasff/phpredis@5e5fa7895f --enable-redis-igbinary'
     ```
 
+Extras
+------
+
+The `ubuntu-extras.sh` file provides useful but rarely used commands.
+
+### Archives
+
+- `archive-file-unpack(file[, directory])`
+
+    Unpack the given archive `file` in `directory` (created if missing). The format is guessed from the file extension.
+
+    Example:
+
+    ```bash
+    archive-file-unpack 'rsync-HEAD.tar.gz' '/tmp/'
+    ```
+
+### Packages (e.g., ZIP distributions)
+
+- `package-ignore-preserve(package_name, package_path, preserved_path)`
+
+    Read a `.gitignore` file in the given `package_path` and remove matching files in `{preserved_path}/{package_name}-*`.
+    This is useful when the contents of an unpacked archive are to be copied over a version-controlled directory and certain files should **not** be overwritten.
+
+    Example:
+
+    ```bash
+    package-ignore-preserve 'hadoop' 'vendor/hadoop' '/tmp/hadoop-download'
+    ```
+
+- `package-uri-download(uri[, target])`
+
+    Download the file at `uri` to the given directory `target` or `STDOUT`.
+
+    Example:
+
+    ```bash
+    package-uri-download 'http://www.samba.org/ftp/rsync/nightly/rsync-HEAD.tar.gz' '/tmp'
+    ```
+
+- `package-uri-install(package_name, package_uri[, package_index[, package_path[, package_version]]])`
+
+    Download, unpack and install the package at `package_uri` to `package_path`.
+    This function does a lot internally and can be used to automate installations of certain ZIP distributions.
+    The URI supports placeholders:
+
+    * `%version` will be substituted with the `package_version`.
+
+    `package_index` should be a file which determines if the package has already been installed. It would usually point to a binary file inside the distribution archive. If omitted, it defaults to `{package_path}/bin/{package_name}`.
+
+    If `package_path` is omitted, a variable `{PACKAGE_NAME}_PATH` is expected. E.g., if `package_name` is 'rsync' a variable named `RSYNC_PATH` must exist.
+    If `package_version` is omitted, a variable `{PACKAGE_NAME}_VERSION` is expected.
+
+    Requires `curl` to be installed.
+
+    Example (installing Node.js from binary distribution):
+
+    ```bash
+    # {{{ Configuration
+
+    NODE_PATH='/vagrant/vendor/node'
+    NODE_VERSION=0.8.22
+    NODE_PLATFORM=x86
+
+    PHANTOMJS_VERSION=1.8.1
+    PHANTOMJS_PATH='/vagrant/vendor/phantomjs'
+    PHANTOMJS_PLATFORM=i686
+
+    # }}}
+
+    # Download and install Node.js from the official website.
+    package-uri-install 'node' "http://nodejs.org/dist/v%version/node-v%version-linux-${NODE_PLATFORM}.tar.gz"
+
+    # Download and install PhantomJS from the official website.
+    package-uri-install 'phantomjs' "https://phantomjs.googlecode.com/files/phantomjs-%version-linux-${PHANTOMJS_PLATFORM}.tar.bz2"
+
+    # Node.js installed as:   /vagrant/vendor/node/bin/node
+    # PhantomJS installed as: /vagrant/vendor/phantomjs/bin/phantomjs
+    ```
+
+### Temporary Files
+
+- `temporary-cleanup(tmp_path[, ...])`
+
+    Delete the contents of each `tmp_path` and halt script with the exit code of the last executed command.
+
+    Example (compile a project and clean up on failure):
+
+    ```bash
+    TMP_PATH="$( mktemp -d -t 'package-XXXXXXXX' )"
+    git clone 'git://github.com/project/package.git' "$TMP_PATH"
+    (                         \
+      cd "$TMP_PATH"       && \
+      ./configure          && \
+      make && make install    \
+    ) || temporary-cleanup "$TMP_PATH"
+    ```
+
 Environment
 -----------
 
