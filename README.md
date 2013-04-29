@@ -588,6 +588,42 @@ The `ubuntu-extras.sh` file provides useful but rarely used commands.
     ) || temporary-cleanup "$TMP_PATH"
     ```
 
+PostgreSQL
+----------
+
+The `ubuntu-postgres.sh` file provides functions for manipulating a PostgreSQL server instance.
+
+- `postgres-remote-access-allow()`
+
+    Allow remote access for the private `192.168.1.1/22` network (`192.168.0.1` through `192.168.3.254`).
+
+    This is only a good idea if the box is configured in 'Host-Only' network mode.
+
+- `postgres-password-reset(password)`
+
+    Reset the `postgres` user server password. This also allows password-based authentication.
+
+    Example:
+
+    ```bash
+    postgres-password-reset 'password'
+    ```
+
+- `postgres-autovacuum-on()`
+
+    Turn [autovacuuming](http://www.postgresql.org/docs/9.2/static/runtime-config-autovacuum.html) on.
+
+- `postgres-template-encoding(encoding = 'UTF8'[, ctype = 'en_GB.utf8'[, collate = ctype]])`
+
+    Set the default database encoding and collision.
+    Newly created databases will inherit those properties.
+
+    Example (use UTF-8 for all new databases):
+
+    ```bash
+    postgres-template-encoding 'UTF8' 'en_GB.utf8'
+    ```
+
 Environment
 -----------
 
