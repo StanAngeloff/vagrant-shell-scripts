@@ -91,10 +91,12 @@ apt-packages-repository() {
 
 # Add a Launchpad PPA as a software source.
 apt-packages-ppa() {
-  local ppa_repository
-  ppa_repository="ppa:$1"
+  local ppa_repository="$1"
   shift
-  apt-packages-repository "$ppa_repository" "$@"
+  # If the repository is already set up, don't re-add it.
+  if ! apt-cache policy | grep "$ppa_repository" 1>/dev/null 2>&1; then
+    apt-packages-repository "ppa:${ppa_repository}" "$@"
+  fi
 }
 
 # Perform a non-interactive `apt-get` command.
