@@ -465,6 +465,29 @@ Functions
     github-php-extension-install 'nicolasff/phpredis@5e5fa7895f --enable-redis-igbinary'
     ```
 
+### Environment
+
+- `env-append(env_key, env_value[, env_comment])`
+
+    Append an environment line to the global Bash/Zsh profile.
+
+    `env_key` can be anything, but the following values have special meaning:
+
+    * `PATH` - extend the `PATH` environment variable with a new directory,
+    * `source` - include an external file (be careful not to `set -e`).
+
+    Any other key would be `export`ed when a new session is initialized.
+
+    Example (set `JAVA_HOME` for scripts that rely on it):
+
+    ```bash
+    env-append 'JAVA_HOME' "/usr/lib/jvm/java-7-openjdk-$( uname -i )"
+
+    # $ tail -2 /etc/profile
+    # # AUTO-GENERATED: JAVA_HOME.
+    # [ -z "$JAVA_HOME" ] && export JAVA_HOME='/usr/lib/jvm/java-7-openjdk-i386'
+    ```
+
 Extras
 ------
 

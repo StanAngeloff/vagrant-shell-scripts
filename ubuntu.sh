@@ -663,6 +663,30 @@ github-php-extension-install() {
 
 # }}}
 
+# {{{ Environment
+
+env-append() {
+  local env_key="$1" env_lookup=1 env_value="$2" env_comment="$3" env_line
+  log-operation "$FUNCNAME" "$@"
+  for profile_env in '/etc/profile' '/etc/zsh/zshenv'; do
+    if [ -f "$profile_env" ]; then
+      if ! grep "${env_key}.*${env_value}" "$profile_env" &>/dev/null; then
+        if [ "$env_key" == 'PATH' ]; then
+          env_line="export ${env_key}="'"$PATH":'"'${env_value}'"
+        elif [ "$env_key" == 'source' ]; then
+          env_line="source ${env_value}"
+        else
+          env_line="[ -z "'"$'"$env_key"'"'" ] && export ${env_key}='${env_value}'"
+        fi
+        eval "$env_line" || :
+        echo -e "\n# AUTO-GENERATED: ${env_key}$( echo ", ${env_comment}" | sed -e 's/^,\s*$//' ).\n${env_line}" | $SUDO tee -a "$profile_env" 1>/dev/null
+      fi
+    fi
+  done
+}
+
+# }}}
+
 # {{{ Dependency Management
 
 # Associate a package name with a command, e.g., 'git' <- 'git-core'.
