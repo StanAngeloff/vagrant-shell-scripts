@@ -672,15 +672,15 @@ env-append() {
   log-operation "$FUNCNAME" "$@"
   for profile_env in '/etc/profile' '/etc/zsh/zshenv'; do
     if [ -f "$profile_env" ]; then
+      if [ "$env_key" == 'PATH' ]; then
+        env_line="export ${env_key}='${env_value}':"'"$PATH"'
+      elif [[ "$env_key" =~ ^(source|eval)$ ]]; then
+        env_line="${env_key} ${env_value} || :"
+      else
+        env_line="[ -z "'"$'"$env_key"'"'" ] && export ${env_key}='${env_value}'"
+      fi
+      eval "$env_line" || :
       if ! grep "${env_key}.*${env_value}" "$profile_env" &>/dev/null; then
-        if [ "$env_key" == 'PATH' ]; then
-          env_line="export ${env_key}="'"$PATH":'"'${env_value}'"
-        elif [ "$env_key" == 'source' ]; then
-          env_line="source ${env_value}"
-        else
-          env_line="[ -z "'"$'"$env_key"'"'" ] && export ${env_key}='${env_value}'"
-        fi
-        eval "$env_line" || :
         echo -e "\n# AUTO-GENERATED: ${env_key}$( echo ", ${env_comment}" | sed -e 's/^,\s*$//' ).\n${env_line}" | $SUDO tee -a "$profile_env" 1>/dev/null
       fi
     fi
