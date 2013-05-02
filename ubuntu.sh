@@ -711,10 +711,41 @@ dependency-package-associate() {
 dependency-install() {
   local binary_name
   local package_name
+  local apt_update_required=0
+  local apt_update_performed=0
+  local apt_update_datetime apt_update_timestamp apt_update_ago
+  local timestamp_now
   for binary_name in "$@"; do
     which "$binary_name" >/dev/null || {
       package_name="$( dependency-package-associate "$binary_name" )"
-      ( $SUDO apt-cache pkgnames | grep "$package_name" 1>/dev/null ) || apt-packages-update
+      # If we cannot find the package name in the cache, request an update.
+      # This may happen if `apt-get update` was not run on the machine before.
+      if ! $SUDO apt-cache pkgnames | grep "$package_name" 1>/dev/null 2>&1; then
+        apt_update_required=1
+      fi
+      # If the last time we updated the cache was more than a day ago, request an update.
+      # This is needed to prevent errors when trying to install an out-of-date package from the cache.
+      if [[ $apt_update_required -lt 1 ]] && [[ $apt_update_performed -lt 1 ]]; then
+        # Determine the last date/time any lists files were modified, newest first.
+        apt_update_datetime="$( \
+          ls -lt --time-style='long-iso' '/var/lib/apt/lists/' 2>/dev/null | grep -o '\([0-9]\{2,4\}[^0-9]\)\{3\}[0-9]\{2\}:[0-9]\{2\}' -m 1 || \
+          date +'%Y-%m-%d %H:%M'
+        )"
+        # Convert the YYYY-MM-DD HH:MM format to a Unix timestamo.
+        apt_update_timestamp=$( date --date="$apt_update_datetime" +'%s' 2>/dev/null || echo 0 )
+        # Calculate the number of seconds that have passed since the newest update.
+        timestamp_now=$( date +'%s' )
+        apt_update_ago=$(( $timestamp_now-$apt_update_timestamp ))
+        if [ $apt_update_ago -gt 86400 ]; then
+          apt_update_required=1
+        fi
+      fi
+      # If the cache needs updating, do so before installing the package (once per call only).
+      if [[ $apt_update_required -gt 0 ]] && [[ $apt_update_performed -lt 1 ]]; then
+        apt_update_required=0
+        apt_update_performed=1
+        apt-packages-update
+      fi
       apt-packages-install "$package_name"
     }
   done
