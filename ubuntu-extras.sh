@@ -102,13 +102,14 @@ package-uri-install() {
     "$package_path" \
     "$package_version"
   if [ ! -f "$package_index" ]; then
+    dependency-install 'rsync'
     TMP_PATH="$( mktemp -d -t "${package_name}-XXXXXXXX" )"
     TMP_FILE="$TMP_PATH/$( basename "$package_uri" )"
     package-uri-download "$package_uri" "$TMP_FILE"
     archive-file-unpack "$TMP_FILE" "$TMP_PATH"
     rm -f "$TMP_FILE"
     package-ignore-preserve "$package_name" "$package_path" "$TMP_PATH"
-    cp -Rf "$TMP_PATH/${package_name}-"*'/' "${package_path}/"
+    rsync -rlptDP "$TMP_PATH/${package_name}-"*'/' "${package_path}/"
     rm -Rf "$TMP_PATH"
   fi
 }
@@ -134,5 +135,6 @@ temporary-cleanup() {
 # Create associations for packages we are going to install.
 dependency-package-associate 'unzip' 'unzip'
 dependency-package-associate 'bzip2' 'bzip2'
+dependency-package-associate 'rsync' 'rsync'
 
 # }}}
