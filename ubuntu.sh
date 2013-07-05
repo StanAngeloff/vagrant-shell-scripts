@@ -483,8 +483,9 @@ php-pecl-install() {
   log-operation "$FUNCNAME" "$@"
   local specification extension
   local mode
-  dependency-install 'phpize'
+  dependency-install 'make'
   dependency-install 'pecl'
+  dependency-install 'phpize'
   for specification in "$@"; do
     extension="${specification%@*}"
     if ! $SUDO pecl list | grep "^${extension}" >/dev/null; then
@@ -754,9 +755,10 @@ dependency-install() {
 
 # Create associations for packages we are going to install.
 dependency-package-associate 'add-apt-repository' 'python-software-properties'
-dependency-package-associate 'phpize' 'php5-dev'
-dependency-package-associate 'pecl' 'php-pear'
-dependency-package-associate 'git' 'git-core'
 dependency-package-associate 'curl' 'curl'
+dependency-package-associate 'git' 'git-core'
+dependency-package-associate 'make' 'build-essential'
+dependency-package-associate 'pecl' 'php-pear'
+dependency-package-associate 'phpize' 'php5-dev'
 
 # }}}
