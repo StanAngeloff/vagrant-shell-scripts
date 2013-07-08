@@ -209,25 +209,25 @@ alternatives-ruby-gems() {
 # Enable a list of Apache modules. This requires a server restart.
 apache-modules-enable() {
   log-operation "$FUNCNAME" "$@"
-  $SUDO a2enmod $*
+  $SUDO a2enmod $* 1>/dev/null
 }
 
 # Disable a list of Apache modules. This requires a server restart.
 apache-modules-disable() {
   log-operation "$FUNCNAME" "$@"
-  $SUDO a2dismod $*
+  $SUDO a2dismod $* 1>/dev/null
 }
 
 # Enable a list of Apache sites. This requires a server restart.
 apache-sites-enable() {
   log-operation "$FUNCNAME" "$@"
-  $SUDO a2ensite $*
+  $SUDO a2ensite $* 1>/dev/null
 }
 
 # Disable a list of Apache sites. This requires a server restart.
 apache-sites-disable() {
   log-operation "$FUNCNAME" "$@"
-  $SUDO a2dissite $*
+  $SUDO a2dissite $* 1>/dev/null
 }
 
 # Create a new Apache site and set up Fast-CGI components.
