@@ -84,7 +84,7 @@ apt-packages-repository() {
     fi
     shift
   done
-  if [ -n "$1" ]; then
+  if [ -n "$1" ] && ! $SUDO apt-key list | grep -q "$1"; then
     $SUDO apt-key adv -q --keyserver "${2:-keyserver.ubuntu.com}" --recv-keys "$1" 1>/dev/null
   fi
 }
