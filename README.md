@@ -624,6 +624,33 @@ The `ubuntu-postgres.sh` file provides functions for manipulating a PostgreSQL s
     postgres-template-encoding 'UTF8' 'en_GB.utf8'
     ```
 
+Postfix
+-------
+
+The `ubuntu-postfix.sh` file provides functions for manipulating an SMTP server instance using Postfix.
+
+- `smtp-sink-install(directory[, template = '%Y%m%d/%H%M.'[, port = 25[, user = 'vagrant'[, service = 'smtp-sink'[, backlog = 10]]]]])`
+
+    Hassle-free SMTP in development. Create a new system service which logs all outgoing e-mails to disk.
+
+    > `directory` specifies the process root directory.  
+    > The single-message files are created by expanding the `template` via strftime(3) and appending a pseudo-random hexadecimal number (example: "%Y%m%d%H/%M." expands into "2006081203/05.809a62e3"). If the template contains "/" characters, missing directories are created automatically.
+
+    `port` specifies the port on which to listen.  
+    `user` switches the user privileges after opening the network socket. The user must have permissions to write in `directory`.
+
+    `service` is an optional name of the system Upstart service. A file with this name is created under `/etc/init/`.
+
+    `backlog` specifies the maximum length the queue of pending connections, as defined by the listen(2) system call.
+
+    Example (log all messages to the `mail/` directory in the project root):
+
+    ```bash
+    smtp-sink-install '/vagrant/mail'
+    ```
+
+    The logged messages can be read using Thunderbird (append `.eml` to the file name).
+
 Environment
 -----------
 
