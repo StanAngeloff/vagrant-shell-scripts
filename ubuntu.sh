@@ -700,7 +700,7 @@ dependency-package-associate() {
   # If a second argument was specified...
   if [ -n "$2" ]; then
     # ...and a package name hasn't been associated with the command yet...
-    if [ -z "${!variable_name}"]; then
+    if [ -z "${!variable_name}" ]; then
       # ...create a new association.
       eval $variable_name=\""$2"\"
     fi
