@@ -57,12 +57,14 @@ package-uri-download() {
   local target
   dependency-install 'curl'
   uri="$1"
-  if [ -z "$2" ]; then
+  shift
+  if [ -z "$1" ]; then
     target="-s"
   else
-    target="-o $2"
+    target="-o $1"
+    shift
   fi
-  curl '-#' --insecure -L $target "$uri"
+  curl '-#' --insecure -L "$@" $target "$uri"
 }
 
 package-uri-install() {
@@ -105,7 +107,7 @@ package-uri-install() {
     dependency-install 'rsync'
     TMP_PATH="$( mktemp -d -t "${package_name}-XXXXXXXX" )"
     TMP_FILE="$TMP_PATH/$( basename "$package_uri" )"
-    package-uri-download "$package_uri" "$TMP_FILE"
+    package-uri-download "$package_uri" "$TMP_FILE" -f || return $?
     archive-file-unpack "$TMP_FILE" "$TMP_PATH"
     rm -f "$TMP_FILE"
     package-ignore-preserve "$package_name" "$package_path" "$TMP_PATH"
