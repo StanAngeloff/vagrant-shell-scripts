@@ -8,40 +8,31 @@ A collection of scripts (Ubuntu-only at this time) to ease Vagrant box provision
 Usage
 -----
 
-1. Place on top of your `Vagrantfile`:
+1. Place on top of your `Vagrantfile` before `Vagrant.configure(..)`:
 
     ```ruby
-    require 'erb'
+    require File.join(File.dirname(__FILE__), 'path/to/vagrant-shell-scripts/vagrant')
     ```
 
-2. Place on top of your provisioning script:
+2. Place at the end of your `Vagrantfile` before the last `end`:
+
+    ```ruby
+    config.vm.provision :shell do |shell|
+        vagrant_shell_scripts_configure(
+            shell,
+            File.dirname(__FILE__),
+            'path/to/provisioning_script'
+        )
+    end
+    ```
+
+3. Place on top of your provisioning script:
 
     ```bash
     #!/usr/bin/env bash
 
-    # {{{ Utilities
-
-    <%= import 'vagrant-shell-scripts/ubuntu.sh' %>
-
-    # }}}
+    <%= import 'ubuntu.sh' %>
     ```
-
-    Note the directory `vagrant-shell-scripts` is expected to be next to your provisioning script.
-
-3. Place the code below at the end of your `Vagrantfile` before the closing `end`:
-
-    ```ruby
-    # Enable provisioning through a shell script.
-    config.vm.provision :shell do |shell|
-      relative     = '../_scripts/vagrant/'
-      script       = 'provision.sh'
-      shell.inline = ERB.new("<% def import(file); File.read('#{relative}' + file); end %>" + File.read("#{relative}#{script}")).result
-    end
-    ```
-
-    Update `relative` to contain the relative path (from `Vagrantfile`) to your provisioning script.
-
-    Update `script` if you called your provisioning file something different.
 
 Functions
 ---------
